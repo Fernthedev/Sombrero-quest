@@ -43,6 +43,7 @@ include_directories(.)
 
 add_compile_definitions("__GNUC__")
 add_compile_definitions("__aarch64__")
+add_compile_definitions("HAS_CODEGEN")
 
 file(GLOB_RECURSE SRC src/*.cpp shared/*.hpp shared/*/*.hpp)
 add_library(Sombrero SHARED ${SRC}) # Is this necessary? Not sure, have it there anyways

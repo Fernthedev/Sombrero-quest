@@ -299,5 +299,7 @@ namespace Sombrero {
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Color) == sizeof(FastColor));
+#else
+DEFINE_IL2CPP_ARG_TYPE(FastColor, "UnityEngine", "Color");
 #endif
 }

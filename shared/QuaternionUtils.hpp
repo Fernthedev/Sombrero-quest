@@ -102,5 +102,7 @@ namespace Sombrero {
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Quaternion) == sizeof(FastQuaternion));
+#else
+    DEFINE_IL2CPP_ARG_TYPE(FastQuaternion, "UnityEngine", "Quaternion");
 #endif
 }

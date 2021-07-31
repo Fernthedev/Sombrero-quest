@@ -110,5 +110,7 @@ namespace Sombrero {
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Vector2) == sizeof(FastVector2));
+#else
+    DEFINE_IL2CPP_ARG_TYPE(FastVector2, "UnityEngine", "Vector2");
 #endif
 }

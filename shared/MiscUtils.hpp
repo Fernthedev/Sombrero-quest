@@ -11,6 +11,7 @@
 #warning CODEGEN DETECTED
 #else
 #warning NO CODEGEN DETECTED
+#include "extern/beatsaber-hook/shared/utils/il2cpp-type-check.hpp"
 #endif
 
 #endif
