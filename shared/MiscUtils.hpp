@@ -1,27 +1,24 @@
 #pragma once
 
+#include <string>
+#include <concepts>
+#include <cmath>
+#include <algorithm>
+
+#ifdef SOMBRERO_DEBUG
+
+#ifdef HAS_CODEGEN
+#warning CODEGEN DETECTED
+#else
+#warning NO CODEGEN DETECTED
+#endif
+
+#endif
+
 namespace Sombrero {
-    static float Clamp01(float value)
+    inline static float Clamp01(float value)
     {
-        bool flag = value < 0.0f;
-        float result;
-        if (flag)
-        {
-            result = 0.0f;
-        }
-        else
-        {
-            bool flag2 = value > 1.0f;
-            if (flag2)
-            {
-                result = 1.0f;
-            }
-            else
-            {
-                result = value;
-            }
-        }
-        return result;
+        return std::clamp(value, 0.0f, 1.0f);
     }
 
     inline static float Lerp(float a, float b, float t)

@@ -2,15 +2,21 @@
 
 #include "MiscUtils.hpp"
 
+#ifdef HAS_CODEGEN
 #include "UnityEngine/Vector2.hpp"
+#endif
 
 namespace Sombrero {
-    // Declaration of the concept "Hashable", which is satisfied by any type 'T'
-// such that for values 'a' of type 'T', the expression std::hash<T>{}(a)
-// compiles and its result is convertible to std::size_t
+
+    struct FastVector2;
+
     template<typename T>
     concept Vector2Derive = requires() {
+#ifdef HAS_CODEGEN
         std::is_base_of<UnityEngine::Vector2, T>::value;
+#else
+        std::is_base_of<FastVector2, T>::value;
+#endif
         !std::is_pointer<T>::value;
     };
 
@@ -38,12 +44,24 @@ namespace Sombrero {
 
 #undef operatorOverload
 
+#ifdef HAS_CODEGEN
     struct FastVector2 : public UnityEngine::Vector2 {
+#else
+      struct FastVector2 {
+          float x,y;
+#endif
     public:
+
+#ifdef HAS_CODEGEN
         // Implicit convert of vector
-        FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {} // x(vector.x), y(vector.y), z(vector.z) {}
+        FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {}
 
         explicit FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
+#else
+        explicit FastVector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
+#endif
+
+
 
         inline std::string toString() {
             return vector2Str(*this);
@@ -90,5 +108,7 @@ namespace Sombrero {
         }
     };
 
+#ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Vector2) == sizeof(FastVector2));
+#endif
 }

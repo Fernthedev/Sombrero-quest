@@ -2,15 +2,21 @@
 
 #include "MiscUtils.hpp"
 
+#ifdef HAS_CODEGEN
 #include "UnityEngine/Color.hpp"
+#endif
 
 namespace Sombrero {
-    // Declaration of the concept "Hashable", which is satisfied by any type 'T'
-// such that for values 'a' of type 'T', the expression std::hash<T>{}(a)
-// compiles and its result is convertible to std::size_t
+
+    struct FastColor;
+
     template<typename T>
     concept ColorDerive = requires() {
+#ifdef HAS_CODEGEN
         std::is_base_of<UnityEngine::Color, T>::value;
+#else
+        std::is_base_of<FastColor, T>::value;
+#endif
         !std::is_pointer<T>::value;
     };
 
@@ -209,12 +215,25 @@ namespace Sombrero {
         return white;
     }
 
+#ifdef HAS_CODEGEN
     struct FastColor : public UnityEngine::Color {
+#else
+    struct FastColor {
+    float r, g, b, a;
+#endif
     public:
+
+#ifdef HAS_CODEGEN
         // Implicit convert of vector
-        FastColor(const Color& vector) : Color(vector.r, vector.g, vector.b) {} // x(vector.r), y(vector.g), z(vector.b) {}
+        FastColor(const Color& vector) : Color(vector.r, vector.g, vector.b) {}
 
         explicit FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
+#else
+        explicit FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : r(r), g(g), b(b), a(a) {}
+#endif
+
+
+
 
         inline std::string toString() {
             return ColorStr(*this);
@@ -278,5 +297,7 @@ namespace Sombrero {
         }
     };
 
+#ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Color) == sizeof(FastColor));
+#endif
 }

@@ -47,7 +47,7 @@ LOCAL_SHARED_LIBRARIES += modloader
 LOCAL_SHARED_LIBRARIES += beatsaber-hook_2_2_4
 LOCAL_SHARED_LIBRARIES += codegen_0_12_5
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -I'extern/libil2cpp/il2cpp/libil2cpp' -DDEBUGB='1' -DID='"sombrero"' -DVERSION='"0.1.0"' -I'./shared' -I'./extern' -isystem'extern/codegen/include' -O2
+LOCAL_CFLAGS += -I'extern/libil2cpp/il2cpp/libil2cpp' -DSOMBRERO_DEBUG='1' -DHAS_CODEGEN -DID='"sombrero"' -DVERSION='"0.1.0"' -I'./shared' -I'./extern' -isystem'extern/codegen/include' -O2
 LOCAL_CPPFLAGS += -std=c++2a -O2
 LOCAL_C_INCLUDES += ./include ./src ./shared
 LOCAL_EXPORT_C_FLAGS :=

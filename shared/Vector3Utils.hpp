@@ -2,15 +2,21 @@
 
 #include "MiscUtils.hpp"
 
+#ifdef HAS_CODEGEN
 #include "UnityEngine/Vector3.hpp"
+#endif
 
 namespace Sombrero {
-    // Declaration of the concept "Hashable", which is satisfied by any type 'T'
-// such that for values 'a' of type 'T', the expression std::hash<T>{}(a)
-// compiles and its result is convertible to std::size_t
+
+    struct FastVector3;
+
     template<typename T>
     concept Vector3Derive = requires() {
+#ifdef HAS_CODEGEN
         std::is_base_of<UnityEngine::Vector3, T>::value;
+#else
+        std::is_base_of<FastVector3, T>::value;
+#endif
         !std::is_pointer<T>::value;
     };
 
@@ -39,12 +45,22 @@ namespace Sombrero {
 
 #undef operatorOverload
 
+#ifdef HAS_CODEGEN
     struct FastVector3 : public UnityEngine::Vector3 {
+#else
+    struct FastVector3 {
+            float x,y,z;
+#endif
     public:
+
+#ifdef HAS_CODEGEN
         // Implicit convert of vector
         FastVector3(const Vector3& vector) : Vector3(vector.x, vector.y, vector.z) {} // x(vector.x), y(vector.y), z(vector.z) {}
 
-        explicit FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
+         explicit FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
+#else
+        explicit FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
+#endif
 
         inline std::string toString() {
             return vector3Str(*this);
@@ -91,5 +107,7 @@ namespace Sombrero {
         }
     };
 
+#ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Vector3) == sizeof(FastVector3));
+#endif
 }

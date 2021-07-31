@@ -11,6 +11,8 @@ This expects you to have some sort of codegen whether it may be BS codegen, monk
 
 When published to QPM, this does not publish codegen as a dependency allowing game agnostic use.
 
+Note: This also works without codegen, but you should attempt to use it anyways.
+
 Add any header of your choice, being `sombrero/shared/ColorUtils.hpp` for example.
 
 # Contribute

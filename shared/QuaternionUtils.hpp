@@ -3,16 +3,22 @@
 #include "MiscUtils.hpp"
 #include "Vector3Utils.hpp"
 
+#ifdef HAS_CODEGEN
 #include "UnityEngine/Quaternion.hpp"
+#endif
 
 
 namespace Sombrero {
-    // Declaration of the concept "Hashable", which is satisfied by any type 'T'
-// such that for values 'a' of type 'T', the expression std::hash<T>{}(a)
-// compiles and its result is convertible to std::size_t
+
+    struct FastQuaternion;
+
     template<typename T>
     concept QuaternionDerive = requires() {
+#ifdef HAS_CODEGEN
         std::is_base_of<UnityEngine::Quaternion, T>::value;
+#else
+        std::is_base_of<FastQuaternion, T>::value;
+#endif
         !std::is_pointer<T>::value;
     };
 
@@ -48,12 +54,22 @@ namespace Sombrero {
         return T(lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y, lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z, lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x, lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z);
     }
 
+#ifdef HAS_CODEGEN
     struct FastQuaternion : public UnityEngine::Quaternion {
+#else
+    struct FastQuaternion {
+        float x, y, z, w;
+#endif
     public:
+#ifdef HAS_CODEGEN
         // Implicit convert of quaternion
         FastQuaternion(const Quaternion& quaternion) :Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w) {} // x(quaternion.x), y(quaternion.y), z(quaternion.z) {}
 
         explicit FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : Quaternion(x, y, z, w) {}
+#else
+        explicit FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : x(x), y(y), z(z), w(w) {}
+#endif
+
 
         inline std::string toString() {
             return QuaternionStr(*this);
@@ -84,5 +100,7 @@ namespace Sombrero {
         }
     };
 
+#ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Quaternion) == sizeof(FastQuaternion));
+#endif
 }
