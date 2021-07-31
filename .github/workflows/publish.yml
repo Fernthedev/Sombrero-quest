@@ -42,6 +42,7 @@ jobs:
       - name: QPM Make shared file
         run: |
           chmod +x ./QPM/QPM
+          mkdir ./extern/codegen -p
           ./QPM/QPM dependency remove codegen
           ./QPM/QPM collect
 
