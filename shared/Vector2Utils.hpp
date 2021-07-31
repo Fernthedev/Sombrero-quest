@@ -98,7 +98,13 @@ namespace Sombrero {
             x operatore##= bb;                       \
             y operatore##= bb;                        \
             return *this; \
+        }                                 \
+        FastVector3& operator operatore##=(const FastVector3& bb) {  \
+            x operatore##= bb.x;                       \
+            y operatore##= bb.y;                        \
+            return *this; \
         }
+
 
         operatorOverload(add, +)
         operatorOverload(subtract, -)

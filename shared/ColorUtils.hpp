@@ -284,6 +284,13 @@ namespace Sombrero {
             b operatore##= bb;                        \
             a operatore##= bb;                        \
             return *this; \
+        } \
+        FastColor& operator operatore##=(const FastColor& bb) {  \
+            r operatore##= bb.r;                       \
+            g operatore##= bb.g;                        \
+            b operatore##= bb.b;                        \
+            a operatore##= bb.a;                        \
+            return *this; \
         }
 
         operatorOverload(add, +)

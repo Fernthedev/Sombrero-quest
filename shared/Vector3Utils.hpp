@@ -99,6 +99,12 @@ namespace Sombrero {
             y operatore##= bb;                        \
             z operatore##= bb;                        \
             return *this; \
+        }                                 \
+        FastVector3& operator operatore##=(const FastVector3& bb) {  \
+            x operatore##= bb.x;                       \
+            y operatore##= bb.y;                        \
+            z operatore##= bb.z;                        \
+            return *this; \
         }
 
         operatorOverload(add, +)
