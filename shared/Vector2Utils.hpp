@@ -99,7 +99,7 @@ namespace Sombrero {
             y operatore##= bb;                        \
             return *this; \
         }                                 \
-        FastVector3& operator operatore##=(const FastVector3& bb) {  \
+        FastVector2& operator operatore##=(const FastVector2& bb) {  \
             x operatore##= bb.x;                       \
             y operatore##= bb.y;                        \
             return *this; \
