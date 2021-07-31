@@ -87,6 +87,27 @@ namespace Sombrero {
             return sqrt(dx * dx + dy * dy + dz * dz);
         }
 
+        static inline FastVector3 Normalize(FastVector3& vec) {
+            float magnitude = vec.Magnitude();
+            if (magnitude == 0.0f) return {0.0f, 0.0f, 0.0f};
+            return vec / magnitude;
+        }
+
+        inline void Normalize() {
+            NormalizeFast();
+        }
+
+        // In case codegen method takes over
+        inline void NormalizeFast() {
+            float magnitude = Magnitude();
+            if (magnitude == 0.0f) {
+                x = 0.0f;
+                y = 0.0f;
+                z = 0.0f;
+            }
+            *this /= magnitude;
+        }
+
 #define operatorOverload(name, operatore) \
         FastVector3 operator operatore(const FastVector3& b) const { \
             return vector3##name(*this, b); \
