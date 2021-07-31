@@ -77,6 +77,16 @@ namespace Sombrero {
             return FastVector2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
         }
 
+        float Magnitude() {
+            return std::sqrt((x * x) + (y * y));
+        }
+
+        float Distance(const FastVector2& b) {
+            float dx = x - b.x;
+            float dy = y - b.y;
+            return sqrt(dx * dx + dy * dy);
+        }
+
 #define operatorOverload(name, operatore) \
         FastVector2 operator operatore(const FastVector2& b) const { \
             return vector2##name(*this, b); \
