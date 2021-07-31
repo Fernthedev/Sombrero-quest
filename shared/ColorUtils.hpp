@@ -277,7 +277,14 @@ namespace Sombrero {
         }                                \
         FastColor operator operatore(float const& b) const { \
             return Color##name(*this, b); \
-        }                                \
+        }                                 \
+        FastColor& operator operatore##=(float const& bb) {  \
+            r += bb;                       \
+            g += bb;                        \
+            b += bb;                        \
+            a += bb;                        \
+            return *this; \
+        }
 
         operatorOverload(add, +)
         operatorOverload(subtract, -)

@@ -93,7 +93,12 @@ namespace Sombrero {
         }                                \
         FastVector2 operator operatore(float const& b) const { \
             return vector2##name(*this, b); \
-        }                                \
+        }                                 \
+        FastVector2& operator operatore##=(float const& bb) {  \
+            x += bb;                       \
+            y += bb;                        \
+            return *this; \
+        }
 
         operatorOverload(add, +)
         operatorOverload(subtract, -)
