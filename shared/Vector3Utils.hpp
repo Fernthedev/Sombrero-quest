@@ -114,7 +114,7 @@ namespace Sombrero {
 
         template<Vector3Derive T>
         inline bool operator !=(const T& lhs) {
-            return lhs.x != x && lhs.y != y && lhs.z != z;
+            return !(this == lhs);
         }
     };
 

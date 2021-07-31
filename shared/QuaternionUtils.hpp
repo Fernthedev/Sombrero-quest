@@ -96,7 +96,7 @@ namespace Sombrero {
 
         template<QuaternionDerive T>
         inline bool operator !=(const T& lhs) {
-            return lhs.x != x && lhs.y != y && lhs.z != z && lhs.w != w;
+            return !(this == lhs);
         }
     };
 

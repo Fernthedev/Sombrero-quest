@@ -293,7 +293,7 @@ namespace Sombrero {
 
         template<ColorDerive T>
         inline bool operator !=(const T& lhs) {
-            return lhs.r != r && lhs.g != g && lhs.b != b && lhs.a != a;
+            return !(this == lhs);
         }
     };
 

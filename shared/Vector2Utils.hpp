@@ -114,7 +114,7 @@ namespace Sombrero {
 
         template<Vector2Derive T>
         inline bool operator !=(const T& lhs) {
-            return lhs.x != x && lhs.y != y;
+            return !(this == lhs);
         }
     };
 
