@@ -95,8 +95,8 @@ namespace Sombrero {
             return vector2##name(*this, b); \
         }                                 \
         FastVector2& operator operatore##=(float const& bb) {  \
-            x += bb;                       \
-            y += bb;                        \
+            x operatore##= bb;                       \
+            y operatore##= bb;                        \
             return *this; \
         }
 

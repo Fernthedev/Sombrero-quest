@@ -95,9 +95,9 @@ namespace Sombrero {
             return vector3##name(*this, b); \
         }                                 \
         FastVector3& operator operatore##=(float const& bb) {  \
-            x += bb;                       \
-            y += bb;                        \
-            z += bb;                        \
+            x operatore##= bb;                       \
+            y operatore##= bb;                        \
+            z operatore##= bb;                        \
             return *this; \
         }
 

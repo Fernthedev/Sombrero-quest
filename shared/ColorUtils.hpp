@@ -279,10 +279,10 @@ namespace Sombrero {
             return Color##name(*this, b); \
         }                                 \
         FastColor& operator operatore##=(float const& bb) {  \
-            r += bb;                       \
-            g += bb;                        \
-            b += bb;                        \
-            a += bb;                        \
+            r operatore##= bb;                       \
+            g operatore##= bb;                        \
+            b operatore##= bb;                        \
+            a operatore##= bb;                        \
             return *this; \
         }
 
