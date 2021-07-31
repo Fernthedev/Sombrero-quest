@@ -227,9 +227,9 @@ namespace Sombrero {
         // Implicit convert of vector
         FastColor(const Color& vector) : Color(vector.r, vector.g, vector.b) {}
 
-        explicit FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
+        FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
 #else
-        explicit FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : r(r), g(g), b(b), a(a) {}
+        FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : r(r), g(g), b(b), a(a) {}
 #endif
 
 

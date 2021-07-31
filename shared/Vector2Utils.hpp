@@ -56,9 +56,9 @@ namespace Sombrero {
         // Implicit convert of vector
         FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {}
 
-        explicit FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
+        FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
 #else
-        explicit FastVector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
+        FastVector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
 #endif
 
 

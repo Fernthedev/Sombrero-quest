@@ -57,9 +57,9 @@ namespace Sombrero {
         // Implicit convert of vector
         FastVector3(const Vector3& vector) : Vector3(vector.x, vector.y, vector.z) {} // x(vector.x), y(vector.y), z(vector.z) {}
 
-         explicit FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
+        FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
 #else
-        explicit FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
+        FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
 #endif
 
         inline std::string toString() {
