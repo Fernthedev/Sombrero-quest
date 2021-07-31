@@ -42,6 +42,7 @@ jobs:
       - name: QPM Make shared file
         run: |
           chmod +x ./QPM/QPM
+          ./QPM/QPM dependency remove codegen
           ./QPM/QPM collect
 
       - name: QPM Dependencies Cache
@@ -57,7 +58,6 @@ jobs:
       - name: QPM Restore
         run: |
           chmod +x ./QPM/QPM
-          ./QPM/QPM dependency remove codegen
           ./QPM/QPM restore
 
       - name: Get Tag Version
