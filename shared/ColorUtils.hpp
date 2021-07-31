@@ -23,11 +23,11 @@ namespace Sombrero {
 #define operatorOverload(name, operator) \
     template<ColorDerive T> \
     static T Color##name (T const& a, T const& b) { \
-        return T(a.r operator b.r, a.g operator b.g, a.b operator b.b); \
+        return T(a.r operator b.r, a.g operator b.g, a.b operator b.b, a.a operator b.a); \
     } \
     template<ColorDerive T> \
     static T Color##name (T const& a, float const& b) { \
-        return T(a.r operator b, a.g operator b, a.b operator b); \
+        return T(a.r operator b, a.g operator b, a.b operator b, a.a operator b); \
     } \
 
 
