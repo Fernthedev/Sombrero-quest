@@ -2,6 +2,7 @@
 
 #include "MiscUtils.hpp"
 
+#include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Vector2.hpp"
 #endif
