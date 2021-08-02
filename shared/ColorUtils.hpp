@@ -231,7 +231,7 @@ namespace Sombrero {
 
 #ifdef HAS_CODEGEN
         // Implicit convert of vector
-        constexpr FastColor(const Color& vector) : Color(vector.r, vector.g, vector.b) {}
+        constexpr FastColor(const Color& color) : Color(color.r, color.g, color.b, color.a) {}
 
         constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
 #else
