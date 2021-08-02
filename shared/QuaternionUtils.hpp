@@ -63,13 +63,15 @@ namespace Sombrero {
     public:
 #ifdef HAS_CODEGEN
         // Implicit convert of quaternion
-        FastQuaternion(const Quaternion& quaternion) :Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w) {} // x(quaternion.x), y(quaternion.y), z(quaternion.z) {}
+        constexpr FastQuaternion(const Quaternion& quaternion) :Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w) {} // x(quaternion.x), y(quaternion.y), z(quaternion.z) {}
 
-        FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : Quaternion(x, y, z, w) {}
+        constexpr FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : Quaternion(x, y, z, w) {}
 #else
-        FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : x(x), y(y), z(z), w(w) {}
+        constexpr FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : x(x), y(y), z(z), w(w) {}
 #endif
-        static constexpr const identity = {0.0f, 0.0f, 0.0f, 1.0f};
+        constexpr static inline FastQuaternion identity() {
+            return {0.0f, 0.0f, 0.0f, 1.0f};
+        }
 
         inline std::string toString() {
             return QuaternionStr(*this);
@@ -100,13 +102,12 @@ namespace Sombrero {
         }
 
         float& operator[](int i) {
-            return (&x[i]);
+            return (&x)[i];
         }
     };
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Quaternion) == sizeof(FastQuaternion));
-#else
-    DEFINE_IL2CPP_ARG_TYPE(FastQuaternion, "UnityEngine", "Quaternion");
 #endif
 }
+DEFINE_IL2CPP_ARG_TYPE(FastQuaternion, "UnityEngine", "Quaternion");
