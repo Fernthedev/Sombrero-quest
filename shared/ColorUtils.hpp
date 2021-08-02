@@ -299,6 +299,10 @@ namespace Sombrero {
             return FastColor(GammaToLinearSpace(r), GammaToLinearSpace(g), GammaToLinearSpace(b), a);
         }
 
+        inline FastColor get_linear()
+        {
+            return Linear();
+        }
 
         FastColor Alpha(float alpha) {
             return FastColor(r, g, b, alpha);
@@ -324,7 +328,7 @@ namespace Sombrero {
             b operatore##= bb.b;                        \
             a operatore##= bb.a;                        \
             return *this; \
-        }
+    }
 
         operatorOverload(add, +)
         operatorOverload(subtract, -)
