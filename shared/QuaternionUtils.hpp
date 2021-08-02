@@ -3,6 +3,7 @@
 #include "MiscUtils.hpp"
 #include "Vector3Utils.hpp"
 
+#include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Quaternion.hpp"
 #endif

@@ -2,6 +2,7 @@
 
 #include "MiscUtils.hpp"
 
+#include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Vector3.hpp"
 #endif
@@ -90,11 +91,12 @@ namespace Sombrero {
         {
             return FastVector3(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
         }
-        float sqrMagnitude() {
+
+        float sqrMagnitude() const {
             return ((x * x) + (y * y) + (z * z));
         }
 
-        float Magnitude() {
+        float Magnitude() const {
             return std::sqrt((x * x) + (y * y) + (z * z));
         }
 
@@ -105,9 +107,9 @@ namespace Sombrero {
             return sqrt(dx * dx + dy * dy + dz * dz);
         }
 
-        static inline FastVector3 Normalize(FastVector3& vec) {
+        static inline FastVector3 Normalize(const FastVector3& vec) {
             float magnitude = vec.Magnitude();
-            if (magnitude == 0.0f) return {0.0f, 0.0f, 0.0f};
+            if (magnitude == 0.0f) return zero();
             return vec / magnitude;
         }
 
