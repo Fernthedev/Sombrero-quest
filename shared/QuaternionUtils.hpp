@@ -97,9 +97,17 @@ namespace Sombrero {
             return lhs.x == x && lhs.y == y && lhs.z == z && lhs.w == w;
         }
 
+        bool operator ==(const FastQuaternion& lhs) {
+            return lhs.x == x && lhs.y == y && lhs.z == z && lhs.w == w;
+        }
+
         template<QuaternionDerive T>
         inline bool operator !=(const T& lhs) {
-            return !(this == lhs);
+            return !(*this == lhs);
+        }
+
+        bool operator !=(const FastQuaternion& lhs) {
+            return !(*this == lhs);
         }
 
         float& operator[](int i) {

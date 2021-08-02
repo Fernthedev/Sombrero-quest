@@ -155,9 +155,17 @@ namespace Sombrero {
             return lhs.x == x && lhs.y == y;
         }
 
+        bool operator ==(const FastVector2& lhs) {
+            return lhs.x == x && lhs.y == y;
+        }
+
         template<Vector2Derive T>
         inline bool operator !=(const T& lhs) {
-            return !(this == lhs);
+            return !(*this == lhs);
+        }
+
+        inline bool operator !=(const FastVector2& lhs) {
+            return !(*this == lhs);
         }
 
         float& operator[](int i) {

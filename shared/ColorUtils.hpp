@@ -342,9 +342,17 @@ namespace Sombrero {
             return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
         }
 
+        bool operator ==(const FastColor& lhs) {
+            return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
+        }
+
         template<ColorDerive T>
         inline bool operator !=(const T& lhs) {
-            return !(this == lhs);
+            return !(*this == lhs);
+        }
+
+        inline bool operator !=(const FastColor& lhs) {
+            return !(*this == lhs);
         }
 
         float& operator[](int i) {

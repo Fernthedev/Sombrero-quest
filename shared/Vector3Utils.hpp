@@ -170,9 +170,17 @@ namespace Sombrero {
             return lhs.x == x && lhs.y == y && lhs.z == z;
         }
 
+        bool operator ==(const FastVector3& lhs) {
+            return lhs.x == x && lhs.y == y && lhs.z == z;
+        }
+
         template<Vector3Derive T>
         inline bool operator !=(const T& lhs) {
-            return !(this == lhs);
+            return !(*this == lhs);
+        }
+
+        inline bool operator !=(const FastVector3& lhs) {
+            return !(*this == lhs);
         }
 
         float& operator[](int i) {
