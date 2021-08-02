@@ -6,6 +6,11 @@
 #include "UnityEngine/Vector3.hpp"
 #endif
 
+#define CONSTEXPR_GETTER(name, ...) \
+constexpr static inline FastVector3 name() {\
+    return __VA_ARGS__;\
+}
+
 namespace Sombrero {
 
     struct FastVector3;
@@ -55,23 +60,23 @@ namespace Sombrero {
 
 #ifdef HAS_CODEGEN
         // Implicit convert of vector
-        FastVector3(const Vector3& vector) : Vector3(vector.x, vector.y, vector.z) {} // x(vector.x), y(vector.y), z(vector.z) {}
+        constexpr FastVector3(const Vector3& vector) : Vector3(vector.x, vector.y, vector.z) {} // x(vector.x), y(vector.y), z(vector.z) {}
 
-        FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
+        constexpr FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
 #else
-        FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
+        constexpr FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
 #endif
 
-        static constexpr const FastVector3 one = {1.0f, 1.0f, 1.0f};
-        static constexpr const FastVector3 zero = {0.0f, 0.0f, 0.0f};
+        CONSTEXPR_GETTER(one, {1.0f, 1.0f, 1.0f})
+        CONSTEXPR_GETTER(zero, {0.0f, 0.0f, 0.0f})
         
-        static constexpr const FastVector3 up = {0.0f, 1.0f, 0.0f};
-        static constexpr const FastVector3 down = {0.0f, -1.0f, 0.0f};
-        static constexpr const FastVector3 left = {-1.0f, 0.0f, 0.0f};
-        static constexpr const FastVector3 right = {1.0f, 0.0f, 0.0f};
-        static constexpr const FastVector3 forward = {0.0f, 0.0f, 1.0f};
-        static constexpr const FastVector3 back = {0.0f, 0.0f, -1.0f};
-        
+        CONSTEXPR_GETTER(up, {0.0f, 1.0f, 0.0f})
+        CONSTEXPR_GETTER(down, {0.0f, -1.0f, 0.0f})
+        CONSTEXPR_GETTER(left, {-1.0f, 0.0f, 0.0f})
+        CONSTEXPR_GETTER(right, {1.0f, 0.0f, 0.0f})
+        CONSTEXPR_GETTER(forward, {0.0f, 0.0f, 1.0f})
+        CONSTEXPR_GETTER(back, {0.0f, 0.0f, -1.0f})
+
         inline std::string toString() {
             return vector3Str(*this);
         }
@@ -164,13 +169,13 @@ namespace Sombrero {
         }
 
         float& operator[](int i) {
-            return (&x[i]);
+            return (&x)[i];
         }
     };
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Vector3) == sizeof(FastVector3));
-#else
-    DEFINE_IL2CPP_ARG_TYPE(FastVector3, "UnityEngine", "Vector3");
 #endif
 }
+DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastVector3, "UnityEngine", "Vector3");
+#undef CONSTEXPR_GETTER

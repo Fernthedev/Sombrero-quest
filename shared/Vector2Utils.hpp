@@ -6,6 +6,11 @@
 #include "UnityEngine/Vector2.hpp"
 #endif
 
+#define CONSTEXPR_GETTER(name, ...) \
+constexpr static inline FastVector2 name() {\
+    return __VA_ARGS__;\
+}
+
 namespace Sombrero {
 
     struct FastVector2;
@@ -54,20 +59,20 @@ namespace Sombrero {
 
 #ifdef HAS_CODEGEN
         // Implicit convert of vector
-        FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {}
+        constexpr FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {}
 
-        FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
+        constexpr FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
 #else
-        FastVector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
+        constexpr FastVector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
 #endif
 
-        static constexpr const FastVector2 one = {1.0f, 1.0f};
-        static constexpr const FastVector2 zero = {0.0f, 0.0f};
+        CONSTEXPR_GETTER(one, {1.0f, 1.0f})
+        CONSTEXPR_GETTER(zero, {0.0f, 0.0f})
 
-        static constexpr const FastVector2 down = {0.0f, -1.0f};
-        static constexpr const FastVector2 up = {0.0f, 1.0f};
-        static constexpr const FastVector2 left = {-1.0f, 0.0f};
-        static constexpr const FastVector2 right = {1.0f, 0.0f};
+        CONSTEXPR_GETTER(down, {0.0f, -1.0f})
+        CONSTEXPR_GETTER(up, {0.0f, 1.0f})
+        CONSTEXPR_GETTER(left, {-1.0f, 0.0f})
+        CONSTEXPR_GETTER(right, {1.0f, 0.0f})
 
         inline std::string toString() {
             return vector2Str(*this);
@@ -155,13 +160,13 @@ namespace Sombrero {
         }
 
         float& operator[](int i) {
-            return (&x[i]);
+            return (&x)[i];
         }
     };
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Vector2) == sizeof(FastVector2));
-#else
-    DEFINE_IL2CPP_ARG_TYPE(FastVector2, "UnityEngine", "Vector2");
 #endif
 }
+DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastVector2, "UnityEngine", "Vector2");
+#undef CONSTEXPR_GETTER

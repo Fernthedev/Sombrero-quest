@@ -6,6 +6,11 @@
 #include "UnityEngine/Color.hpp"
 #endif
 
+#define CONSTEXPR_GETTER(name, ...) \
+constexpr static inline FastColor name() {\
+    return __VA_ARGS__;\
+}
+
 namespace Sombrero {
 
     struct FastColor;
@@ -225,42 +230,42 @@ namespace Sombrero {
 
 #ifdef HAS_CODEGEN
         // Implicit convert of vector
-        FastColor(const Color& vector) : Color(vector.r, vector.g, vector.b) {}
+        constexpr FastColor(const Color& vector) : Color(vector.r, vector.g, vector.b) {}
 
-        FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
+        constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
 #else
-        FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : r(r), g(g), b(b), a(a) {}
+        constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : r(r), g(g), b(b), a(a) {}
 #endif
         // there are more colors here than unity normally has, sucks to be unity I guess lul
         // colors added by RedBrumbler do not have a //unity comment
-        static constexpr const FastColor white = {1.0f, 1.0f, 1.0f, 1.0f}; //unity
-        static constexpr const FastColor black = {0.0f, 0.0f, 0.0f, 1.0f}; //unity
-        static constexpr const FastColor gray = {0.5f, 0.5f, 0.5f, 1.0f}; //unity
-        static constexpr const FastColor grey = {0.5f, 0.5f, 0.5f, 1.0f}; //unity
+        CONSTEXPR_GETTER(white, {1.0f, 1.0f, 1.0f, 1.0f}) //unity
+        CONSTEXPR_GETTER(black, {0.0f, 0.0f, 0.0f, 1.0f}) //unity
+        CONSTEXPR_GETTER(gray, {0.5f, 0.5f, 0.5f, 1.0f}) //unity
+        CONSTEXPR_GETTER(grey, {0.5f, 0.5f, 0.5f, 1.0f}) //unity
 
-        static constexpr const FastColor lightgray = {0.75f, 0.75f, 0.75f, 1.0f};
-        static constexpr const FastColor lightgrey = {0.75f, 0.75f, 0.75f, 1.0f};
+        CONSTEXPR_GETTER(lightgray, {0.75f, 0.75f, 0.75f, 1.0f})
+        CONSTEXPR_GETTER(lightgrey, {0.75f, 0.75f, 0.75f, 1.0f})
 
-        static constexpr const FastColor darkgray = {0.25f, 0.25f, 0.25f, 1.0f};
-        static constexpr const FastColor darkgrey = {0.25f, 0.25f, 0.25f, 1.0f};
+        CONSTEXPR_GETTER(darkgray, {0.25f, 0.25f, 0.25f, 1.0f})
+        CONSTEXPR_GETTER(darkgrey, {0.25f, 0.25f, 0.25f, 1.0f})
 
-        static constexpr const FastColor red = {1.0f, 0.0f, 0.0f, 1.0f}; //unity
-        static constexpr const FastColor green = {0.0f, 1.0f, 0.0f, 1.0f}; //unity
-        static constexpr const FastColor blue = {0.0f, 0.0f, 1.0f, 1.0f}; //unity
+        CONSTEXPR_GETTER(red, {1.0f, 0.0f, 0.0f, 1.0f}) //unity
+        CONSTEXPR_GETTER(green, {0.0f, 1.0f, 0.0f, 1.0f}) //unity
+        CONSTEXPR_GETTER(blue, {0.0f, 0.0f, 1.0f, 1.0f}) //unity
 
-        static constexpr const FastColor magenta = {1.0f, 0.0f, 1.0f, 1.0f}; //unity
-        static constexpr const FastColor cyan = {0.0f, 1.0f, 1.0f, 1.0f}; //unity
-        static constexpr const FastColor yellow = {1.0f, 0.92f, 0.016f, 1.0f}; //unity
+        CONSTEXPR_GETTER(magenta, {1.0f, 0.0f, 1.0f, 1.0f}) //unity
+        CONSTEXPR_GETTER(cyan, {0.0f, 1.0f, 1.0f, 1.0f}) //unity
+        CONSTEXPR_GETTER(yellow, {1.0f, 0.92f, 0.016f, 1.0f}) //unity
 
-        static constexpr const FastColor lightgreen = {0.5f, 1.0f, 0.5f, 1.0f};
-        static constexpr const FastColor lightblue = {0.5f, 0.5f, 1.0f, 1.0f};
-        static constexpr const FastColor pink = {1.0f, 0.5f, 0.75f, 1.0f};
+        CONSTEXPR_GETTER(lightgreen, {0.5f, 1.0f, 0.5f, 1.0f})
+        CONSTEXPR_GETTER(lightblue, {0.5f, 0.5f, 1.0f, 1.0f})
+        CONSTEXPR_GETTER(pink, {1.0f, 0.5f, 0.75f, 1.0f})
 
-        static constexpr const FastColor purple = {0.75f, 0.0f, 1.0f, 1.0f};
-        static constexpr const FastColor orange = {1.0f, 0.5f, 0.0f, 1.0f};
-        static constexpr const FastColor brown = {0.5f, 0.25f, 0.0f, 1.0f};
+        CONSTEXPR_GETTER(purple, {0.75f, 0.0f, 1.0f, 1.0f})
+        CONSTEXPR_GETTER(orange, {1.0f, 0.5f, 0.0f, 1.0f})
+        CONSTEXPR_GETTER(brown, {0.5f, 0.25f, 0.0f, 1.0f})
         
-        static constexpr const FastColor clear = {0.0f, 0.0f, 0.0f, 0.0f}; //unity
+        CONSTEXPR_GETTER(clear, {0.0f, 0.0f, 0.0f, 0.0f}) //unity
 
         inline std::string toString() {
             return ColorStr(*this);
@@ -338,13 +343,13 @@ namespace Sombrero {
         }
 
         float& operator[](int i) {
-            return (&r[i]);
+            return (&r)[i];
         }
     };
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Color) == sizeof(FastColor));
-#else
-DEFINE_IL2CPP_ARG_TYPE(FastColor, "UnityEngine", "Color");
 #endif
 }
+DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastColor, "UnityEngine", "Color");
+#undef CONSTEXPR_GETTER
