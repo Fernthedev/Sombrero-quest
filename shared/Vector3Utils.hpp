@@ -111,6 +111,11 @@ namespace Sombrero {
             return vec / magnitude;
         }
 
+        inline FastVector3 get_normalized()
+        {
+            return FastVector3::Normalize(*this);
+        }
+
         inline void Normalize() {
             NormalizeFast();
         }
