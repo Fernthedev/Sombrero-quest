@@ -62,6 +62,16 @@ namespace Sombrero {
         FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
 #endif
 
+        static constexpr const FastVector3 one = {1.0f, 1.0f, 1.0f};
+        static constexpr const FastVector3 zero = {0.0f, 0.0f, 0.0f};
+        
+        static constexpr const FastVector3 up = {0.0f, 1.0f, 0.0f};
+        static constexpr const FastVector3 down = {0.0f, -1.0f, 0.0f};
+        static constexpr const FastVector3 left = {-1.0f, 0.0f, 0.0f};
+        static constexpr const FastVector3 right = {1.0f, 0.0f, 0.0f};
+        static constexpr const FastVector3 forward = {0.0f, 0.0f, 1.0f};
+        static constexpr const FastVector3 back = {0.0f, 0.0f, -1.0f};
+        
         inline std::string toString() {
             return vector3Str(*this);
         }
@@ -74,6 +84,9 @@ namespace Sombrero {
         static FastVector3 LerpUnclamped(FastVector3 const& a, FastVector3 const& b, float const& t)
         {
             return FastVector3(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
+        }
+        float sqrMagnitude() {
+            return ((x * x) + (y * y) + (z * z));
         }
 
         float Magnitude() {
@@ -148,6 +161,10 @@ namespace Sombrero {
         template<Vector3Derive T>
         inline bool operator !=(const T& lhs) {
             return !(this == lhs);
+        }
+
+        float& operator[](int i) {
+            return (&x[i]);
         }
     };
 

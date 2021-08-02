@@ -231,9 +231,36 @@ namespace Sombrero {
 #else
         FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : r(r), g(g), b(b), a(a) {}
 #endif
+        // there are more colors here than unity normally has, sucks to be unity I guess lul
+        // colors added by RedBrumbler do not have a //unity comment
+        static constexpr const FastColor white = {1.0f, 1.0f, 1.0f, 1.0f}; //unity
+        static constexpr const FastColor black = {0.0f, 0.0f, 0.0f, 1.0f}; //unity
+        static constexpr const FastColor gray = {0.5f, 0.5f, 0.5f, 1.0f}; //unity
+        static constexpr const FastColor grey = {0.5f, 0.5f, 0.5f, 1.0f}; //unity
 
+        static constexpr const FastColor lightgray = {0.75f, 0.75f, 0.75f, 1.0f};
+        static constexpr const FastColor lightgrey = {0.75f, 0.75f, 0.75f, 1.0f};
 
+        static constexpr const FastColor darkgray = {0.25f, 0.25f, 0.25f, 1.0f};
+        static constexpr const FastColor darkgrey = {0.25f, 0.25f, 0.25f, 1.0f};
 
+        static constexpr const FastColor red = {1.0f, 0.0f, 0.0f, 1.0f}; //unity
+        static constexpr const FastColor green = {0.0f, 1.0f, 0.0f, 1.0f}; //unity
+        static constexpr const FastColor blue = {0.0f, 0.0f, 1.0f, 1.0f}; //unity
+
+        static constexpr const FastColor magenta = {1.0f, 0.0f, 1.0f, 1.0f}; //unity
+        static constexpr const FastColor cyan = {0.0f, 1.0f, 1.0f, 1.0f}; //unity
+        static constexpr const FastColor yellow = {1.0f, 0.92f, 0.016f, 1.0f}; //unity
+
+        static constexpr const FastColor lightgreen = {0.5f, 1.0f, 0.5f, 1.0f};
+        static constexpr const FastColor lightblue = {0.5f, 0.5f, 1.0f, 1.0f};
+        static constexpr const FastColor pink = {1.0f, 0.5f, 0.75f, 1.0f};
+
+        static constexpr const FastColor purple = {0.75f, 0.0f, 1.0f, 1.0f};
+        static constexpr const FastColor orange = {1.0f, 0.5f, 0.0f, 1.0f};
+        static constexpr const FastColor brown = {0.5f, 0.25f, 0.0f, 1.0f};
+        
+        static constexpr const FastColor clear = {0.0f, 0.0f, 0.0f, 0.0f}; //unity
 
         inline std::string toString() {
             return ColorStr(*this);
@@ -308,6 +335,10 @@ namespace Sombrero {
         template<ColorDerive T>
         inline bool operator !=(const T& lhs) {
             return !(this == lhs);
+        }
+
+        float& operator[](int i) {
+            return (&r[i]);
         }
     };
 

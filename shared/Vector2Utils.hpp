@@ -61,7 +61,13 @@ namespace Sombrero {
         FastVector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
 #endif
 
+        static constexpr const FastVector2 one = {1.0f, 1.0f};
+        static constexpr const FastVector2 zero = {0.0f, 0.0f};
 
+        static constexpr const FastVector2 down = {0.0f, -1.0f};
+        static constexpr const FastVector2 up = {0.0f, 1.0f};
+        static constexpr const FastVector2 left = {-1.0f, 0.0f};
+        static constexpr const FastVector2 right = {1.0f, 0.0f};
 
         inline std::string toString() {
             return vector2Str(*this);
@@ -146,6 +152,10 @@ namespace Sombrero {
         template<Vector2Derive T>
         inline bool operator !=(const T& lhs) {
             return !(this == lhs);
+        }
+
+        float& operator[](int i) {
+            return (&x[i]);
         }
     };
 
