@@ -110,4 +110,4 @@ namespace Sombrero {
     static_assert(sizeof(UnityEngine::Quaternion) == sizeof(FastQuaternion));
 #endif
 }
-DEFINE_IL2CPP_ARG_TYPE(FastQuaternion, "UnityEngine", "Quaternion");
+DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastQuaternion, "UnityEngine", "Quaternion");
