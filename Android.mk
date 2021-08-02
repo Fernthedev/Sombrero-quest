@@ -39,7 +39,7 @@ LOCAL_SRC_FILES := extern/libmodloader.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := sombrero
+LOCAL_MODULE := sombrero_0_1_15
 LOCAL_SRC_FILES += $(call rwildcard,src/,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.c)
@@ -47,7 +47,7 @@ LOCAL_SHARED_LIBRARIES += modloader
 LOCAL_SHARED_LIBRARIES += beatsaber-hook_2_2_4
 LOCAL_SHARED_LIBRARIES += codegen_0_12_5
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -I'extern/libil2cpp/il2cpp/libil2cpp' -DSOMBRERO_DEBUG='1' -DHAS_CODEGEN -DID='"sombrero"' -DVERSION='"0.1.0"' -I'./shared' -I'./extern' -isystem'extern/codegen/include' -O2
+LOCAL_CFLAGS += -I'extern/libil2cpp/il2cpp/libil2cpp' -DSOMBRERO_DEBUG='1' -DHAS_CODEGEN -DID='"sombrero"' -DVERSION='"0.1.15"' -I'./shared' -I'./extern' -isystem'extern/codegen/include' -O2
 LOCAL_CPPFLAGS += -std=c++2a -O2
 LOCAL_C_INCLUDES += ./include ./src ./shared
 LOCAL_EXPORT_C_FLAGS :=
