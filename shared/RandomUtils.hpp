@@ -4,6 +4,7 @@
 
 namespace Sombrero {
     class RandomFast {
+        public:
         // https://stackoverflow.com/a/686373/9816000
         // https://www.cplusplus.com/reference/random/uniform_real_distribution/
         // https://www.delftstack.com/howto/cpp/how-to-generate-random-float-number-in-cpp/
