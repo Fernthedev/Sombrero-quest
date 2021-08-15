@@ -145,16 +145,9 @@ namespace Sombrero {
             return FastVector3(-x, -y, -z);
         }
 
-        bool operator ==(const FastVector3& lhs) {
-            return lhs.x == x && lhs.y == y && lhs.z == z;
-        }
 
         bool operator ==(const UnityEngine::Vector3& lhs) {
             return lhs.x == x && lhs.y == y && lhs.z == z;
-        }
-
-        inline bool operator !=(const FastVector3& lhs) {
-            return lhs.x != x || lhs.y != y || lhs.z != z;
         }
 
         inline bool operator !=(const UnityEngine::Vector3& lhs) {

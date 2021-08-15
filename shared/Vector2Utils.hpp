@@ -130,14 +130,6 @@ namespace Sombrero {
         }
 
 
-        bool operator ==(const FastVector2& lhs) {
-            return lhs.x == x && lhs.y == y;
-        }
-
-        inline bool operator !=(const FastVector2& lhs) {
-            return lhs.x != x || lhs.y != y;
-        }
-
         bool operator ==(const UnityEngine::Vector2& lhs) {
             return lhs.x == x && lhs.y == y;
         }

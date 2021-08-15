@@ -319,16 +319,6 @@ namespace Sombrero {
 
 
 
-        bool operator ==(const FastColor& lhs) {
-            return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
-        }
-
-        inline bool operator !=(const FastColor& lhs) {
-            return lhs.r != r || lhs.g != g || lhs.b != b || lhs.a != a;
-        }
-
-        
-
         bool operator ==(const UnityEngine::Color& lhs) {
             return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
         }
