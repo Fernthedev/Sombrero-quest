@@ -109,6 +109,9 @@ namespace Sombrero {
         FastVector3 operator operatore(const FastVector3& b) const { \
             return FastVector3(this->x operatore b.x, this->y operatore b.y, this->z operatore b.z); \
         }                                \
+        FastVector3 operator operatore(const UnityEngine::Vector3& b) const { \
+            return FastVector3(this->x operatore b.x, this->y operatore b.y, this->z operatore b.z); \
+        }                                \
         FastVector3 operator operatore(float const& b) const { \
             return FastVector3(this->x operatore b, this->y operatore b, this->z operatore b); \
         }                                 \
@@ -119,6 +122,12 @@ namespace Sombrero {
             return *this; \
         }                                 \
         FastVector3& operator operatore##=(const FastVector3& bb) {  \
+            x operatore##= bb.x;                       \
+            y operatore##= bb.y;                        \
+            z operatore##= bb.z;                        \
+            return *this; \
+        } \
+        FastVector3& operator operatore##=(const UnityEngine::Vector3& bb) {  \
             x operatore##= bb.x;                       \
             y operatore##= bb.y;                        \
             z operatore##= bb.z;                        \
@@ -140,8 +149,15 @@ namespace Sombrero {
             return lhs.x == x && lhs.y == y && lhs.z == z;
         }
 
+        bool operator ==(const UnityEngine::Vector3& lhs) {
+            return lhs.x == x && lhs.y == y && lhs.z == z;
+        }
 
         inline bool operator !=(const FastVector3& lhs) {
+            return lhs.x != x || lhs.y != y || lhs.z != z;
+        }
+
+        inline bool operator !=(const UnityEngine::Vector3& lhs) {
             return lhs.x != x || lhs.y != y || lhs.z != z;
         }
 

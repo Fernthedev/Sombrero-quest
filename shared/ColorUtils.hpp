@@ -282,6 +282,9 @@ namespace Sombrero {
         FastColor operator operatore(const FastColor& b) const { \
             return FastColor(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
+        explicit FastColor operator operatore(const UnityEngine::Color& b) const { \
+            return FastColor(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
+        }                                \
         FastColor operator operatore(float const& b) const { \
             return FastColor(this->r operatore b, this->g operatore b, this->b operatore b, this->a operatore b); \
         }                                 \
@@ -298,7 +301,14 @@ namespace Sombrero {
             b operatore##= bb.b;                        \
             a operatore##= bb.a;                        \
             return *this; \
-    }
+        } \
+        explicit FastColor& operator operatore##=(const UnityEngine::Color& bb) {  \
+            r operatore##= bb.r;                       \
+            g operatore##= bb.g;                        \
+            b operatore##= bb.b;                        \
+            a operatore##= bb.a;                        \
+            return *this; \
+        }
 
         operatorOverload(add, +)
         operatorOverload(subtract, -)
@@ -313,9 +323,17 @@ namespace Sombrero {
             return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
         }
 
-
-
         inline bool operator !=(const FastColor& lhs) {
+            return lhs.r != r || lhs.g != g || lhs.b != b || lhs.a != a;
+        }
+
+        
+
+        bool operator ==(const UnityEngine::Color& lhs) {
+            return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
+        }
+
+        inline bool operator !=(const UnityEngine::Color& lhs) {
             return lhs.r != r || lhs.g != g || lhs.b != b || lhs.a != a;
         }
 

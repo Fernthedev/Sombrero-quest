@@ -80,7 +80,11 @@ namespace Sombrero {
 
         FastQuaternion operator*(const FastQuaternion &b) const { return QuaternionMultiply(*this, b); }
 
+        explicit FastQuaternion operator*(const UnityEngine::Quaternion &b) const { return QuaternionMultiply(*this, b); }
+
         FastVector3 operator*(const FastVector3 &b) const { return QuaternionMultiply(*this, b); }
+
+        explicit FastVector3 operator*(const UnityEngine::Vector3 &b) const { return QuaternionMultiply(*this, b); }
 
 
         bool operator ==(const FastQuaternion& lhs) {
@@ -88,6 +92,14 @@ namespace Sombrero {
         }
 
         bool operator !=(const FastQuaternion& lhs) {
+            return lhs.x != x || lhs.y != y || lhs.z != z || lhs.w != w;
+        }
+
+        bool operator ==(const UnityEngine::Quaternion& lhs) {
+            return lhs.x == x && lhs.y == y && lhs.z == z && lhs.w == w;
+        }
+
+        bool operator !=(const UnityEngine::Quaternion& lhs) {
             return lhs.x != x || lhs.y != y || lhs.z != z || lhs.w != w;
         }
 

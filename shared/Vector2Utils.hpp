@@ -95,6 +95,9 @@ namespace Sombrero {
         FastVector2 operator operatore(const FastVector2& b) const { \
             return FastVector2(this->x operatore b.x, this->y operatore this->y); \
         }                                \
+        explicit FastVector2 operator operatore(const UnityEngine::Vector2& b) const { \
+            return FastVector2(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
+        }                                \
         FastVector2 operator operatore(float const& b) const { \
             return FastVector2(this->x operatore b, this->y operatore b); \
         }                                 \
@@ -104,6 +107,11 @@ namespace Sombrero {
             return *this; \
         }                                 \
         FastVector2& operator operatore##=(const FastVector2& bb) {  \
+            x operatore##= bb.x;                       \
+            y operatore##= bb.y;                        \
+            return *this; \
+        } \
+        explicit FastVector2& operator operatore##=(const UnityEngine::Vector2& bb) {  \
             x operatore##= bb.x;                       \
             y operatore##= bb.y;                        \
             return *this; \
@@ -127,6 +135,14 @@ namespace Sombrero {
         }
 
         inline bool operator !=(const FastVector2& lhs) {
+            return lhs.x != x || lhs.y != y;
+        }
+
+        bool operator ==(const UnityEngine::Vector2& lhs) {
+            return lhs.x == x && lhs.y == y;
+        }
+
+        inline bool operator !=(const UnityEngine::Vector2& lhs) {
             return lhs.x != x || lhs.y != y;
         }
 
