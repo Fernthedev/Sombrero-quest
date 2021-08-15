@@ -96,7 +96,7 @@ namespace Sombrero {
             return FastVector2(this->x operatore b.x, this->y operatore this->y); \
         }                                \
         FastVector2 operator operatore(const UnityEngine::Vector2& b) const { \
-            return FastVector2(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
+            return FastVector2(this->x operatore b.x, this->y operatore this->y); \
         }                                \
         FastVector2 operator operatore(float const& b) const { \
             return FastVector2(this->x operatore b, this->y operatore b); \
