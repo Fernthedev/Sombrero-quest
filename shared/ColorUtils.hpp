@@ -32,12 +32,12 @@ namespace Sombrero {
 
     inline static float GammaToLinearSpace(float gamma)
     {
-        return 255.0f * std::pow(gamma / 255.0f, 2.2f);
+        return std::pow(gamma, 2.2f);
     }
 
     inline static float LinearToGammaSpace(float linear)
     {
-        return 255.0f * std::pow(linear / 255.0f, 1.0f / 2.2f);
+        return std::pow(linear, 1.0f / 2.2f);
     }
 
     inline static UnityEngine::Color ColorLinear(UnityEngine::Color const &a)
