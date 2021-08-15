@@ -4,6 +4,7 @@
 #include "Vector2Utils.hpp"
 #include "QuaternionUtils.hpp"
 #include "ColorUtils.hpp"
+#include "HSBColor.hpp"
 #include "RandomUtils.hpp"
 
 int main() {
@@ -12,4 +13,6 @@ int main() {
 
     Sombrero::FastVector2 vec2;
     Sombrero::vector2Str(vec2);
+
+    Sombrero::HSBColor();
 }

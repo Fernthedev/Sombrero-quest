@@ -26,4 +26,17 @@ namespace Sombrero {
     {
         return a + (b - a) * Clamp01(t);
     }
+    
+    inline static float PingPong(float t, float length)
+    {
+        float graph = std::fmod(t, length * 2);
+        if (graph > length) graph = ((2 * length) - graph);
+        // should yield
+        //length_______________
+        //                 /\      /\      /
+        //                /  \    /  \    /
+        //               /    \  /    \  /
+        //zero_________ /      \/      \/
+        return graph;
+    }
 }
