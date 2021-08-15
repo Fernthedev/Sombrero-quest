@@ -8,28 +8,28 @@
 #include "UnityEngine/Quaternion.hpp"
 #endif
 
+#ifndef HAS_CODEGEN
+// TODO: Will this break things?
+namespace UnityEngine
+{
+    struct Quaternion
+    {
+        float x, y, z, w;
+    }
+}
+#endif
 
 namespace Sombrero {
 
     struct FastQuaternion;
 
-    template<typename T>
-    concept QuaternionDerive = requires() {
-#ifdef HAS_CODEGEN
-        std::is_base_of<UnityEngine::Quaternion, T>::value;
-#else
-        std::is_base_of<FastQuaternion, T>::value;
-#endif
-        !std::is_pointer<T>::value;
-    };
-
-    template<QuaternionDerive T>
-    inline static std::string QuaternionStr(T const& quaternion) {
-        return "x: " + std::to_string(quaternion.x) + ", y: " + std::to_string(quaternion.y) + ", z: " + std::to_string(quaternion.z) + " w:" + std::to_string(quaternion.w);
+    static UnityEngine::Quaternion QuaternionMultiply(UnityEngine::Quaternion const &lhs, UnityEngine::Quaternion const &rhs)
+    {
+        return UnityEngine::Quaternion(lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y, lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z, lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x, lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z);
     }
 
-    template<QuaternionDerive T>
-    static FastVector3 QuaternionMultiply(T const& rotation, FastVector3 point) {
+    static FastVector3 QuaternionMultiply(UnityEngine::Quaternion const &rotation, UnityEngine::Vector3 const &point)
+    {
         float num = rotation.x * 2.0f;
         float num2 = rotation.y * 2.0f;
         float num3 = rotation.z * 2.0f;
@@ -49,27 +49,17 @@ namespace Sombrero {
         return result;
     }
 
-    template<QuaternionDerive T>
-    static T QuaternionMultiply(T const& lhs, T const& rhs)
-    {
-        return T(lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y, lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z, lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x, lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z);
+    inline static std::string QuaternionStr(UnityEngine::Quaternion const& quaternion) {
+        return "x: " + std::to_string(quaternion.x) + ", y: " + std::to_string(quaternion.y) + ", z: " + std::to_string(quaternion.z) + " w:" + std::to_string(quaternion.w);
     }
 
-#ifdef HAS_CODEGEN
     struct FastQuaternion : public UnityEngine::Quaternion {
-#else
-    struct FastQuaternion {
-        float x, y, z, w;
-#endif
     public:
-#ifdef HAS_CODEGEN
         // Implicit convert of quaternion
         constexpr FastQuaternion(const Quaternion& quaternion) :Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w) {} // x(quaternion.x), y(quaternion.y), z(quaternion.z) {}
 
         constexpr FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : Quaternion(x, y, z, w) {}
-#else
-        constexpr FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : x(x), y(y), z(z), w(w) {}
-#endif
+
         constexpr static inline FastQuaternion identity() {
             return {0.0f, 0.0f, 0.0f, 1.0f};
         }
@@ -92,22 +82,13 @@ namespace Sombrero {
 
         FastVector3 operator*(const FastVector3 &b) const { return QuaternionMultiply(*this, b); }
 
-        template<QuaternionDerive T>
-        bool operator ==(const T& lhs) {
-            return lhs.x == x && lhs.y == y && lhs.z == z && lhs.w == w;
-        }
 
         bool operator ==(const FastQuaternion& lhs) {
             return lhs.x == x && lhs.y == y && lhs.z == z && lhs.w == w;
         }
 
-        template<QuaternionDerive T>
-        inline bool operator !=(const T& lhs) {
-            return !(*this == lhs);
-        }
-
         bool operator !=(const FastQuaternion& lhs) {
-            return !(*this == lhs);
+            return lhs.x != x || lhs.y != y || lhs.z != z || lhs.w != w;
         }
 
         float& operator[](int i) {

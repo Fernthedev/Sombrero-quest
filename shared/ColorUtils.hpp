@@ -12,65 +12,46 @@ constexpr static inline FastColor name() {\
     return __VA_ARGS__;\
 }
 
+#ifndef HAS_CODEGEN 
+// TODO: Will this break things?
+namespace UnityEngine {
+    struct Color {
+        float r, g, b, a;
+    }
+}
+#endif
+
 namespace Sombrero {
 
     struct FastColor;
 
-    template<typename T>
-    concept ColorDerive = requires() {
-#ifdef HAS_CODEGEN
-        std::is_base_of<UnityEngine::Color, T>::value;
-#else
-        std::is_base_of<FastColor, T>::value;
-#endif
-        !std::is_pointer<T>::value;
-    };
-
-#define operatorOverload(name, operator) \
-    template<ColorDerive T> \
-    static T Color##name (T const& a, T const& b) { \
-        return T(a.r operator b.r, a.g operator b.g, a.b operator b.b, a.a operator b.a); \
-    } \
-    template<ColorDerive T> \
-    static T Color##name (T const& a, float const& b) { \
-        return T(a.r operator b, a.g operator b, a.b operator b, a.a operator b); \
-    } \
-
-
-    template<ColorDerive T>
-    inline static std::string ColorStr(T const& color) {
+    inline static std::string ColorStr(UnityEngine::Color const &color)
+    {
         return "r: " + std::to_string(color.r) + ", g: " + std::to_string(color.g) + ", b:" + std::to_string(color.b);
     }
 
-    operatorOverload(add, +)
-    operatorOverload(subtract, -)
-    operatorOverload(multiply, *)
-    operatorOverload(scale, *)
-    operatorOverload(divide, /)
-
-#undef operatorOverload
-
-    inline static float GammaToLinearSpace(float gamma) {
+    inline static float GammaToLinearSpace(float gamma)
+    {
         return 255.0f * std::pow(gamma / 255.0f, 2.2f);
     }
 
-    inline static float LinearToGammaSpace(float linear) {
-        return 255.0f * std::pow(linear / 255.0f, 1.0f/2.2f);
+    inline static float LinearToGammaSpace(float linear)
+    {
+        return 255.0f * std::pow(linear / 255.0f, 1.0f / 2.2f);
     }
 
-    template<ColorDerive T>
-    inline static T ColorLinear(T const& a) {
-        return T(GammaToLinearSpace(a.r), GammaToLinearSpace(a.g), GammaToLinearSpace(a.b), a.a);
+    inline static UnityEngine::Color ColorLinear(UnityEngine::Color const &a)
+    {
+        return UnityEngine::Color(GammaToLinearSpace(a.r), GammaToLinearSpace(a.g), GammaToLinearSpace(a.b), a.a);
     }
 
-    template<ColorDerive T>
-    inline static T ColorAlpha(T const& a, float alpha) {
+    inline static UnityEngine::Color ColorAlpha(UnityEngine::Color a, float alpha)
+    {
         a.a = alpha;
         return a;
     }
 
-
-    static void RGBToHSVHelper(float offset, float dominantcolor, float colorone, float colortwo, float& H, float& S, float& V)
+    static void RGBToHSVHelper(float offset, float dominantcolor, float colorone, float colortwo, float &H, float &S, float &V)
     {
         V = dominantcolor;
         bool flag = V != 0.0f;
@@ -112,8 +93,7 @@ namespace Sombrero {
         }
     }
 
-    template<ColorDerive T>
-    static void ColorRGBToHSV(T const& rgbColor, float& H, float& S, float& V)
+    static void ColorRGBToHSV(UnityEngine::Color const &rgbColor, float &H, float &S, float &V)
     {
         bool flag = rgbColor.b > rgbColor.g && rgbColor.b > rgbColor.r;
         if (flag)
@@ -134,10 +114,9 @@ namespace Sombrero {
         }
     }
 
-    template<ColorDerive T>
-    static T ColorHSVToRGB(float H, float S, float V, bool hdr = true)
+    static UnityEngine::Color ColorHSVToRGB(float H, float S, float V, bool hdr = true)
     {
-        auto white = T(1.0f, 1.0f, 1.0f, 1.0f);
+        auto white = UnityEngine::Color(1.0f, 1.0f, 1.0f, 1.0f);
 
         bool flag = S == 0.0f;
         if (flag)
@@ -168,46 +147,46 @@ namespace Sombrero {
                 float num6 = V * (1.0f - S * (1.0f - num3));
                 switch (num2)
                 {
-                    case -1:
-                        white.r = V;
-                        white.g = num4;
-                        white.b = num5;
-                        break;
-                    case 0:
-                        white.r = V;
-                        white.g = num6;
-                        white.b = num4;
-                        break;
-                    case 1:
-                        white.r = num5;
-                        white.g = V;
-                        white.b = num4;
-                        break;
-                    case 2:
-                        white.r = num4;
-                        white.g = V;
-                        white.b = num6;
-                        break;
-                    case 3:
-                        white.r = num4;
-                        white.g = num5;
-                        white.b = V;
-                        break;
-                    case 4:
-                        white.r = num6;
-                        white.g = num4;
-                        white.b = V;
-                        break;
-                    case 5:
-                        white.r = V;
-                        white.g = num4;
-                        white.b = num5;
-                        break;
-                    case 6:
-                        white.r = V;
-                        white.g = num6;
-                        white.b = num4;
-                        break;
+                case -1:
+                    white.r = V;
+                    white.g = num4;
+                    white.b = num5;
+                    break;
+                case 0:
+                    white.r = V;
+                    white.g = num6;
+                    white.b = num4;
+                    break;
+                case 1:
+                    white.r = num5;
+                    white.g = V;
+                    white.b = num4;
+                    break;
+                case 2:
+                    white.r = num4;
+                    white.g = V;
+                    white.b = num6;
+                    break;
+                case 3:
+                    white.r = num4;
+                    white.g = num5;
+                    white.b = V;
+                    break;
+                case 4:
+                    white.r = num6;
+                    white.g = num4;
+                    white.b = V;
+                    break;
+                case 5:
+                    white.r = V;
+                    white.g = num4;
+                    white.b = num5;
+                    break;
+                case 6:
+                    white.r = V;
+                    white.g = num6;
+                    white.b = num4;
+                    break;
                 }
                 bool flag3 = !hdr;
                 if (flag3)
@@ -221,22 +200,13 @@ namespace Sombrero {
         return white;
     }
 
-#ifdef HAS_CODEGEN
     struct FastColor : public UnityEngine::Color {
-#else
-    struct FastColor {
-    float r, g, b, a;
-#endif
     public:
-
-#ifdef HAS_CODEGEN
         // Implicit convert of vector
         constexpr FastColor(const Color& color) : Color(color.r, color.g, color.b, color.a) {}
 
         constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
-#else
-        constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : r(r), g(g), b(b), a(a) {}
-#endif
+
         // there are more colors here than unity normally has, sucks to be unity I guess lul
         // colors added by RedBrumbler do not have a //unity comment
         CONSTEXPR_GETTER(white, {1.0f, 1.0f, 1.0f, 1.0f}) //unity
@@ -291,7 +261,7 @@ namespace Sombrero {
         // static public UnityEngine.Color HSVToRGB(System.Single H, System.Single S, System.Single V)
         // Offset: 0x17D4568
         static FastColor HSVToRGB(float H, float S, float V) {
-            return ColorHSVToRGB<FastColor>(H, S, V);
+            return ColorHSVToRGB(H, S, V);
         }
 
 
@@ -310,10 +280,10 @@ namespace Sombrero {
 
 #define operatorOverload(name, operatore) \
         FastColor operator operatore(const FastColor& b) const { \
-            return Color##name(*this, b); \
+            return FastColor(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
         FastColor operator operatore(float const& b) const { \
-            return Color##name(*this, b); \
+            return FastColor(this->r operatore b, this->g operatore b, this->b operatore b, this->a operatore b); \
         }                                 \
         FastColor& operator operatore##=(float const& bb) {  \
             r operatore##= bb;                       \
@@ -337,28 +307,42 @@ namespace Sombrero {
 
 #undef operatorOverload
 
-        template<ColorDerive T>
-        bool operator ==(const T& lhs) {
-            return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
-        }
+
 
         bool operator ==(const FastColor& lhs) {
             return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
         }
 
-        template<ColorDerive T>
-        inline bool operator !=(const T& lhs) {
-            return !(*this == lhs);
-        }
+
 
         inline bool operator !=(const FastColor& lhs) {
-            return !(*this == lhs);
+            return lhs.r != r || lhs.g != g || lhs.b != b || lhs.a != a;
         }
 
         float& operator[](int i) {
             return (&r)[i];
         }
     };
+
+#define operatorOverload(name, operator) \
+    static FastColor Color##name (UnityEngine::Color const& a, UnityEngine::Color const& b) { \
+        return FastColor(a.r operator b.r, a.g operator b.g, a.b operator b.b, a.a operator b.a); \
+    } \
+    static FastColor Color##name (UnityEngine::Color const& a, float const& b) { \
+        return FastColor(a.r operator b, a.g operator b, a.b operator b, a.a operator b); \
+    } \
+
+
+
+    operatorOverload(add, +)
+    operatorOverload(subtract, -)
+    operatorOverload(multiply, *)
+    operatorOverload(scale, *)
+    operatorOverload(divide, /)
+
+#undef operatorOverload
+
+
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Color) == sizeof(FastColor));

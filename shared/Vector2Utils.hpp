@@ -12,60 +12,32 @@ constexpr static inline FastVector2 name() {\
     return __VA_ARGS__;\
 }
 
+#ifndef HAS_CODEGEN
+// TODO: Will this break things?
+namespace UnityEngine
+{
+    struct Vector2
+    {
+        float x, y;
+    }
+}
+#endif
+
 namespace Sombrero {
 
     struct FastVector2;
 
-    template<typename T>
-    concept Vector2Derive = requires() {
-#ifdef HAS_CODEGEN
-        std::is_base_of<UnityEngine::Vector2, T>::value;
-#else
-        std::is_base_of<FastVector2, T>::value;
-#endif
-        !std::is_pointer<T>::value;
-    };
-
-#define operatorOverload(name, operator) \
-    template<Vector2Derive T> \
-    static T vector2##name (T const& a, T const& b) { \
-        return T(a.x operator b.x, a.y operator b.y); \
-    } \
-    template<Vector2Derive T> \
-    static T vector2##name (T const& a, float const& b) { \
-        return T(a.x operator b, a.y operator b); \
-    } \
-
-
-    template<Vector2Derive T>
-    inline static std::string vector2Str(T const& vector2) {
+    inline static std::string vector2Str(UnityEngine::Vector2 const &vector2)
+    {
         return std::to_string(vector2.x) + ", " + std::to_string(vector2.y);
     }
 
-    operatorOverload(add, +)
-    operatorOverload(subtract, -)
-    operatorOverload(multiply, *)
-    operatorOverload(scale, *)
-    operatorOverload(divide, /)
-
-#undef operatorOverload
-
-#ifdef HAS_CODEGEN
     struct FastVector2 : public UnityEngine::Vector2 {
-#else
-      struct FastVector2 {
-          float x,y;
-#endif
     public:
-
-#ifdef HAS_CODEGEN
         // Implicit convert of vector
         constexpr FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {}
 
         constexpr FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
-#else
-        constexpr FastVector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
-#endif
 
         CONSTEXPR_GETTER(one, {1.0f, 1.0f})
         CONSTEXPR_GETTER(zero, {0.0f, 0.0f})
@@ -121,10 +93,10 @@ namespace Sombrero {
 
 #define operatorOverload(name, operatore) \
         FastVector2 operator operatore(const FastVector2& b) const { \
-            return vector2##name(*this, b); \
+            return FastVector2(this->x operatore b.x, this->y operatore this->y); \
         }                                \
         FastVector2 operator operatore(float const& b) const { \
-            return vector2##name(*this, b); \
+            return FastVector2(this->x operatore b, this->y operatore b); \
         }                                 \
         FastVector2& operator operatore##=(float const& bb) {  \
             x operatore##= bb;                       \
@@ -150,28 +122,35 @@ namespace Sombrero {
         }
 
 
-        template<Vector2Derive T>
-        bool operator ==(const T& lhs) {
-            return lhs.x == x && lhs.y == y;
-        }
-
         bool operator ==(const FastVector2& lhs) {
             return lhs.x == x && lhs.y == y;
         }
 
-        template<Vector2Derive T>
-        inline bool operator !=(const T& lhs) {
-            return !(*this == lhs);
-        }
-
         inline bool operator !=(const FastVector2& lhs) {
-            return !(*this == lhs);
+            return lhs.x != x || lhs.y != y;
         }
 
         float& operator[](int i) {
             return (&x)[i];
         }
     };
+
+#define operatorOverload(name, operator) \
+    static FastVector2 vector2##name(UnityEngine::Vector2 const &a, UnityEngine::Vector2 const &b) \
+    { \
+        return FastVector2(a.x operator b.x, a.y operator b.y); \
+    } \
+    static FastVector2 vector2##name (UnityEngine::Vector2 const& a, float const& b) { \
+        return FastVector2(a.x operator b, a.y operator b); \
+    } \
+
+    operatorOverload(add, +)
+    operatorOverload(subtract, -)
+    operatorOverload(multiply, *)
+    operatorOverload(scale, *)
+    operatorOverload(divide, /)
+
+#undef operatorOverload
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Vector2) == sizeof(FastVector2));

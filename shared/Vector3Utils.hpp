@@ -12,61 +12,33 @@ constexpr static inline FastVector3 name() {\
     return __VA_ARGS__;\
 }
 
+#ifndef HAS_CODEGEN
+// TODO: Will this break things?
+namespace UnityEngine
+{
+    struct Vector3
+    {
+        float x, y, z;
+    }
+}
+#endif
+
 namespace Sombrero {
 
     struct FastVector3;
 
-    template<typename T>
-    concept Vector3Derive = requires() {
-#ifdef HAS_CODEGEN
-        std::is_base_of<UnityEngine::Vector3, T>::value;
-#else
-        std::is_base_of<FastVector3, T>::value;
-#endif
-        !std::is_pointer<T>::value;
-    };
-
-#define operatorOverload(name, operator) \
-    template<Vector3Derive T> \
-    static T vector3##name (T const& a, T const& b) { \
-        return T(a.x operator b.x, a.y operator b.y, a.z operator b.z); \
-    } \
-    template<Vector3Derive T> \
-    static T vector3##name (T const& a, float const& b) { \
-        return T(a.x operator b, a.y operator b, a.z operator b); \
-    } \
-
-
-
-    template<Vector3Derive T>
-    inline std::string vector3Str(T const& vector3) {
+    inline std::string vector3Str(UnityEngine::Vector3 const &vector3)
+    {
         return std::to_string(vector3.x) + ", " + std::to_string(vector3.y) + ", " + std::to_string(vector3.z);
     }
 
-    operatorOverload(add, +)
-    operatorOverload(subtract, -)
-    operatorOverload(multiply, *)
-    operatorOverload(scale, *)
-    operatorOverload(divide, /)
-
-#undef operatorOverload
-
-#ifdef HAS_CODEGEN
     struct FastVector3 : public UnityEngine::Vector3 {
-#else
-    struct FastVector3 {
-            float x,y,z;
-#endif
     public:
-
-#ifdef HAS_CODEGEN
         // Implicit convert of vector
         constexpr FastVector3(const Vector3& vector) : Vector3(vector.x, vector.y, vector.z) {} // x(vector.x), y(vector.y), z(vector.z) {}
 
         constexpr FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
-#else
-        constexpr FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : x(x), y(y), z(z) {}
-#endif
+
 
         CONSTEXPR_GETTER(one, {1.0f, 1.0f, 1.0f})
         CONSTEXPR_GETTER(zero, {0.0f, 0.0f, 0.0f})
@@ -135,10 +107,10 @@ namespace Sombrero {
 
 #define operatorOverload(name, operatore) \
         FastVector3 operator operatore(const FastVector3& b) const { \
-            return vector3##name(*this, b); \
+            return FastVector3(this->x operatore b.x, this->y operatore b.y, this->z operatore b.z); \
         }                                \
         FastVector3 operator operatore(float const& b) const { \
-            return vector3##name(*this, b); \
+            return FastVector3(this->x operatore b, this->y operatore b, this->z operatore b); \
         }                                 \
         FastVector3& operator operatore##=(float const& bb) {  \
             x operatore##= bb;                       \
@@ -164,29 +136,38 @@ namespace Sombrero {
             return FastVector3(-x, -y, -z);
         }
 
-
-        template<Vector3Derive T>
-        bool operator ==(const T& lhs) {
-            return lhs.x == x && lhs.y == y && lhs.z == z;
-        }
-
         bool operator ==(const FastVector3& lhs) {
             return lhs.x == x && lhs.y == y && lhs.z == z;
         }
 
-        template<Vector3Derive T>
-        inline bool operator !=(const T& lhs) {
-            return !(*this == lhs);
-        }
 
         inline bool operator !=(const FastVector3& lhs) {
-            return !(*this == lhs);
+            return lhs.x != x || lhs.y != y || lhs.z != z;
         }
 
         float& operator[](int i) {
             return (&x)[i];
         }
     };
+
+
+// Method operators
+#define operatorOverload(name, operator) \
+    inline static FastVector3 vector3##name (UnityEngine::Vector3 const& a, UnityEngine::Vector3 const& b) { \
+        return FastVector3(a.x operator b.x, a.y operator b.y, a.z operator b.z); \
+    } \
+    inline static FastVector3 vector3##name (UnityEngine::Vector3 const& a, float const& b) { \
+        return FastVector3(a.x operator b, a.y operator b, a.z operator b); \
+    } \
+
+
+    operatorOverload(add, +)
+    operatorOverload(subtract, -)
+    operatorOverload(multiply, *)
+    operatorOverload(scale, *)
+    operatorOverload(divide, /)
+
+#undef operatorOverload
 
 #ifdef HAS_CODEGEN
     static_assert(sizeof(UnityEngine::Vector3) == sizeof(FastVector3));
