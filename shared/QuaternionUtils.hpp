@@ -80,11 +80,11 @@ namespace Sombrero {
 
         FastQuaternion operator*(const FastQuaternion &b) const { return QuaternionMultiply(*this, b); }
 
-        explicit FastQuaternion operator*(const UnityEngine::Quaternion &b) const { return QuaternionMultiply(*this, b); }
+        FastQuaternion operator*(const UnityEngine::Quaternion &b) const { return QuaternionMultiply(*this, b); }
 
         FastVector3 operator*(const FastVector3 &b) const { return QuaternionMultiply(*this, b); }
 
-        explicit FastVector3 operator*(const UnityEngine::Vector3 &b) const { return QuaternionMultiply(*this, b); }
+        FastVector3 operator*(const UnityEngine::Vector3 &b) const { return QuaternionMultiply(*this, b); }
 
 
         bool operator ==(const FastQuaternion& lhs) {

@@ -282,7 +282,7 @@ namespace Sombrero {
         FastColor operator operatore(const FastColor& b) const { \
             return FastColor(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
-        explicit FastColor operator operatore(const UnityEngine::Color& b) const { \
+        FastColor operator operatore(const UnityEngine::Color& b) const { \
             return FastColor(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
         FastColor operator operatore(float const& b) const { \
@@ -302,7 +302,7 @@ namespace Sombrero {
             a operatore##= bb.a;                        \
             return *this; \
         } \
-        explicit FastColor& operator operatore##=(const UnityEngine::Color& bb) {  \
+        FastColor& operator operatore##=(const UnityEngine::Color& bb) {  \
             r operatore##= bb.r;                       \
             g operatore##= bb.g;                        \
             b operatore##= bb.b;                        \
