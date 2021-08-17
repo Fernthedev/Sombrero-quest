@@ -205,7 +205,7 @@ namespace Sombrero {
         // Implicit convert of vector
         constexpr FastColor(const Color& color) : Color(color.r, color.g, color.b, color.a) {}
 
-        constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f) : Color(r, g, b, a) {}
+        constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : Color(r, g, b, a) {}
 
         // there are more colors here than unity normally has, sucks to be unity I guess lul
         // colors added by RedBrumbler do not have a //unity comment
@@ -280,10 +280,10 @@ namespace Sombrero {
 
 #define operatorOverload(name, operatore) \
         FastColor operator operatore(const FastColor& b) const { \
-            return FastColor(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
+            return FastColor(this->r operatore b.r, this->g operatore b.g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
         FastColor operator operatore(const UnityEngine::Color& b) const { \
-            return FastColor(this->r operatore b.r, this->g operatore this->g, this->b operatore b.b, this->a operatore b.a); \
+            return FastColor(this->r operatore b.r, this->g operatore b.g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
         FastColor operator operatore(float const& b) const { \
             return FastColor(this->r operatore b, this->g operatore b, this->b operatore b, this->a operatore b); \

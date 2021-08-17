@@ -58,7 +58,7 @@ namespace Sombrero {
         // Implicit convert of quaternion
         constexpr FastQuaternion(const Quaternion& quaternion) :Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w) {} // x(quaternion.x), y(quaternion.y), z(quaternion.z) {}
 
-        constexpr FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : Quaternion(x, y, z, w) {}
+        constexpr FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 1.0f) : Quaternion(x, y, z, w) {}
 
         constexpr static inline FastQuaternion identity() {
             return {0.0f, 0.0f, 0.0f, 1.0f};

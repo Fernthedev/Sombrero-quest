@@ -93,10 +93,10 @@ namespace Sombrero {
 
 #define operatorOverload(name, operatore) \
         FastVector2 operator operatore(const FastVector2& b) const { \
-            return FastVector2(this->x operatore b.x, this->y operatore this->y); \
+            return FastVector2(this->x operatore b.x, this->y operatore b.y); \
         }                                \
         FastVector2 operator operatore(const UnityEngine::Vector2& b) const { \
-            return FastVector2(this->x operatore b.x, this->y operatore this->y); \
+            return FastVector2(this->x operatore b.x, this->y operatore b.y); \
         }                                \
         FastVector2 operator operatore(float const& b) const { \
             return FastVector2(this->x operatore b, this->y operatore b); \
