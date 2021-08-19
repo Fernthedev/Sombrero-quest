@@ -71,6 +71,12 @@ namespace Sombrero {
         float Magnitude() const {
             return std::sqrt((x * x) + (y * y) + (z * z));
         }
+        float sqrDistance(const FastVector3& b) {
+            float dx = x - b.x;
+            float dy = y - b.y;
+            float dz = z - b.z;
+            return dx * dx + dy * dy + dz * dz;
+        }
 
         float Distance(const FastVector3& b) {
             float dx = x - b.x;
