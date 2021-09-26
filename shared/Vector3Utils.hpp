@@ -50,7 +50,7 @@ namespace Sombrero {
         CONSTEXPR_GETTER(forward, {0.0f, 0.0f, 1.0f})
         CONSTEXPR_GETTER(back, {0.0f, 0.0f, -1.0f})
 
-        inline std::string toString() {
+        inline std::string toString() const {
             return vector3Str(*this);
         }
 
@@ -71,14 +71,14 @@ namespace Sombrero {
         float Magnitude() const {
             return std::sqrt((x * x) + (y * y) + (z * z));
         }
-        float sqrDistance(const FastVector3& b) {
+        float sqrDistance(const FastVector3& b) const {
             float dx = x - b.x;
             float dy = y - b.y;
             float dz = z - b.z;
             return dx * dx + dy * dy + dz * dz;
         }
 
-        float Distance(const FastVector3& b) {
+        float Distance(const FastVector3& b) const {
             float dx = x - b.x;
             float dy = y - b.y;
             float dz = z - b.z;
@@ -91,7 +91,7 @@ namespace Sombrero {
             return vec / magnitude;
         }
 
-        inline FastVector3 get_normalized()
+        inline FastVector3 get_normalized() const
         {
             return FastVector3::Normalize(*this);
         }
@@ -101,7 +101,7 @@ namespace Sombrero {
         }
 
         // In case codegen method takes over
-        inline void NormalizeFast() {
+        void NormalizeFast() {
             float magnitude = Magnitude();
             if (magnitude == 0.0f) {
                 x = 0.0f;

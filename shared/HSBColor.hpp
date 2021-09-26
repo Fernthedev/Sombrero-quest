@@ -140,7 +140,7 @@ namespace Sombrero {
             return FastColor(Sombrero::Clamp01(r), Sombrero::Clamp01(g), Sombrero::Clamp01(b), hsbColor.a);
         }
 
-        inline std::string toString() {
+        inline std::string toString() const {
             return HSBColorStr(*this);
         }
     };

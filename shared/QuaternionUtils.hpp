@@ -64,7 +64,7 @@ namespace Sombrero {
             return {0.0f, 0.0f, 0.0f, 1.0f};
         }
 
-        inline std::string toString() {
+        inline std::string toString() const {
             return QuaternionStr(*this);
         }
 

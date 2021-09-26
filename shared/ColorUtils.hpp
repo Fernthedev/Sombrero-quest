@@ -238,7 +238,7 @@ namespace Sombrero {
         
         CONSTEXPR_GETTER(clear, {0.0f, 0.0f, 0.0f, 0.0f}) //unity
 
-        inline std::string toString() {
+        inline std::string toString() const {
             return ColorStr(*this);
         }
 
@@ -265,16 +265,16 @@ namespace Sombrero {
         }
 
 
-        FastColor Linear() {
+        FastColor Linear() const {
             return FastColor(GammaToLinearSpace(r), GammaToLinearSpace(g), GammaToLinearSpace(b), a);
         }
 
-        inline FastColor get_linear()
+        inline FastColor get_linear() const
         {
             return Linear();
         }
 
-        FastColor Alpha(float alpha) {
+        FastColor Alpha(float alpha) const {
             return FastColor(r, g, b, alpha);
         }
 
