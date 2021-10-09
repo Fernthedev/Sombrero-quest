@@ -17,7 +17,9 @@ constexpr static inline FastColor name() {\
 namespace UnityEngine {
     struct Color {
         float r, g, b, a;
-    }
+
+        constexpr Color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : r(r), g(g), b(b), a(a) {}
+    };
 }
 #endif
 
