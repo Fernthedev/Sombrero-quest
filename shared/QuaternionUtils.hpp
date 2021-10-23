@@ -70,16 +70,6 @@ namespace Sombrero {
             return QuaternionStr(*this);
         }
 
-        inline static FastQuaternion Lerp(FastQuaternion const& a, FastQuaternion const& b, float const& t)
-        {
-            return LerpUnclamped(a, b, Clamp01(t));
-        }
-
-        static FastQuaternion LerpUnclamped(FastQuaternion const& a, FastQuaternion const& b, float const& t)
-        {
-            return FastQuaternion(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
-        }
-
         FastQuaternion operator*(const FastQuaternion &b) const { return QuaternionMultiply(*this, b); }
 
         FastQuaternion operator*(const UnityEngine::Quaternion &b) const { return QuaternionMultiply(*this, b); }
