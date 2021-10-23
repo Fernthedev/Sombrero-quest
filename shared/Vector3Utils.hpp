@@ -113,6 +113,11 @@ namespace Sombrero {
             *this /= magnitude;
         }
 
+        static float Dot(FastVector3 const& lhs, FastVector3 const& rhs)
+		{
+			return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+		}
+
 #define operatorOverload(name, operatore) \
         FastVector3 operator operatore(const FastVector3& b) const { \
             return FastVector3(this->x operatore b.x, this->y operatore b.y, this->z operatore b.z); \
