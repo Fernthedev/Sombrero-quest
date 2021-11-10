@@ -53,7 +53,7 @@ namespace Sombrero {
         return a;
     }
 
-    static void RGBToHSVHelper(float offset, float dominantcolor, float colorone, float colortwo, float &H, float &S, float &V)
+    constexpr static void RGBToHSVHelper(float offset, float dominantcolor, float colorone, float colortwo, float &H, float &S, float &V)
     {
         V = dominantcolor;
         bool flag = V != 0.0f;
@@ -95,7 +95,7 @@ namespace Sombrero {
         }
     }
 
-    static void ColorRGBToHSV(UnityEngine::Color const &rgbColor, float &H, float &S, float &V)
+    constexpr static void ColorRGBToHSV(UnityEngine::Color const &rgbColor, float &H, float &S, float &V)
     {
         bool flag = rgbColor.b > rgbColor.g && rgbColor.b > rgbColor.r;
         if (flag)
@@ -116,7 +116,7 @@ namespace Sombrero {
         }
     }
 
-    static UnityEngine::Color ColorHSVToRGB(float H, float S, float V, bool hdr = true)
+    constexpr static UnityEngine::Color ColorHSVToRGB(float H, float S, float V, bool hdr = true)
     {
         auto white = UnityEngine::Color(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -249,25 +249,25 @@ namespace Sombrero {
             return LerpUnclamped(a, b, Clamp01(t));
         }
 
-        static FastColor LerpUnclamped(FastColor const& a, FastColor const& b, float const& t)
+        constexpr static FastColor LerpUnclamped(FastColor const& a, FastColor const& b, float const& t)
         {
             return FastColor(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, a.a + (b.a - a.a) * t);
         }
 
         // static public System.Void RGBToHSV(UnityEngine.Color rgbColor, out System.Single H, out System.Single S, out System.Single V)
         // Offset: 0x17D43E0
-        static void RGBToHSV(FastColor const& rgbColor, float& H, float& S, float& V) {
+        constexpr static void RGBToHSV(FastColor const& rgbColor, float& H, float& S, float& V) {
             return ColorRGBToHSV(rgbColor, H, S, V);
         }
 
         // static public UnityEngine.Color HSVToRGB(System.Single H, System.Single S, System.Single V)
         // Offset: 0x17D4568
-        static FastColor HSVToRGB(float H, float S, float V) {
+        constexpr static FastColor HSVToRGB(float H, float S, float V) {
             return ColorHSVToRGB(H, S, V);
         }
 
 
-        FastColor Linear() const {
+        constexpr FastColor Linear() const {
             return FastColor(GammaToLinearSpace(r), GammaToLinearSpace(g), GammaToLinearSpace(b), a);
         }
 
@@ -276,35 +276,35 @@ namespace Sombrero {
             return Linear();
         }
 
-        FastColor Alpha(float alpha) const {
+        constexpr FastColor Alpha(float alpha) const {
             return FastColor(r, g, b, alpha);
         }
 
 #define operatorOverload(name, operatore) \
-        FastColor operator operatore(const FastColor& b) const { \
+        constexpr FastColor operator operatore(const FastColor& b) const { \
             return FastColor(this->r operatore b.r, this->g operatore b.g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
-        FastColor operator operatore(const UnityEngine::Color& b) const { \
+        constexpr FastColor operator operatore(const UnityEngine::Color& b) const { \
             return FastColor(this->r operatore b.r, this->g operatore b.g, this->b operatore b.b, this->a operatore b.a); \
         }                                \
-        FastColor operator operatore(float const& b) const { \
+        constexpr FastColor operator operatore(float const& b) const { \
             return FastColor(this->r operatore b, this->g operatore b, this->b operatore b, this->a operatore b); \
         }                                 \
-        FastColor& operator operatore##=(float const& bb) {  \
+        constexpr FastColor& operator operatore##=(float const& bb) {  \
             r operatore##= bb;                       \
             g operatore##= bb;                        \
             b operatore##= bb;                        \
             a operatore##= bb;                        \
             return *this; \
         } \
-        FastColor& operator operatore##=(const FastColor& bb) {  \
+        constexpr FastColor& operator operatore##=(const FastColor& bb) {  \
             r operatore##= bb.r;                       \
             g operatore##= bb.g;                        \
             b operatore##= bb.b;                        \
             a operatore##= bb.a;                        \
             return *this; \
         } \
-        FastColor& operator operatore##=(const UnityEngine::Color& bb) {  \
+        constexpr FastColor& operator operatore##=(const UnityEngine::Color& bb) {  \
             r operatore##= bb.r;                       \
             g operatore##= bb.g;                        \
             b operatore##= bb.b;                        \
@@ -321,24 +321,24 @@ namespace Sombrero {
 
 
 
-        bool operator ==(const UnityEngine::Color& lhs) {
+        constexpr bool operator ==(const UnityEngine::Color& lhs) {
             return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
         }
 
-        inline bool operator !=(const UnityEngine::Color& lhs) {
+        constexpr bool operator !=(const UnityEngine::Color& lhs) {
             return lhs.r != r || lhs.g != g || lhs.b != b || lhs.a != a;
         }
 
-        float& operator[](int i) {
+        constexpr float& operator[](int i) {
             return (&r)[i];
         }
     };
 
 #define operatorOverload(name, operator) \
-    static FastColor Color##name (UnityEngine::Color const& a, UnityEngine::Color const& b) { \
+    constexpr static FastColor Color##name (UnityEngine::Color const& a, UnityEngine::Color const& b) { \
         return FastColor(a.r operator b.r, a.g operator b.g, a.b operator b.b, a.a operator b.a); \
     } \
-    static FastColor Color##name (UnityEngine::Color const& a, float const& b) { \
+    constexpr static FastColor Color##name (UnityEngine::Color const& a, float const& b) { \
         return FastColor(a.r operator b, a.g operator b, a.b operator b, a.a operator b); \
     } \
 

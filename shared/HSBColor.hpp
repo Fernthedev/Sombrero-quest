@@ -21,7 +21,7 @@ namespace Sombrero {
             return "H: " + std::to_string(color.h) + ", S: " + std::to_string(color.s) + ", B:" + std::to_string(color.b) + ", A:" + std::to_string(color.a);
         }
 
-        FastColor ToColor() const
+        inline FastColor ToColor() const
         {
             return ToColor(*this);
         }

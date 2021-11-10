@@ -25,12 +25,12 @@ namespace Sombrero {
 
     struct FastQuaternion;
 
-    static UnityEngine::Quaternion QuaternionMultiply(UnityEngine::Quaternion const &lhs, UnityEngine::Quaternion const &rhs)
+    constexpr static UnityEngine::Quaternion QuaternionMultiply(UnityEngine::Quaternion const &lhs, UnityEngine::Quaternion const &rhs)
     {
         return UnityEngine::Quaternion(lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y, lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z, lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x, lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z);
     }
 
-    static FastVector3 QuaternionMultiply(UnityEngine::Quaternion const &rotation, UnityEngine::Vector3 const &point)
+    constexpr static FastVector3 QuaternionMultiply(UnityEngine::Quaternion const &rotation, UnityEngine::Vector3 const &point)
     {
         float num = rotation.x * 2.0f;
         float num2 = rotation.y * 2.0f;
@@ -70,25 +70,25 @@ namespace Sombrero {
             return QuaternionStr(*this);
         }
 
-        FastQuaternion operator*(const FastQuaternion &b) const { return QuaternionMultiply(*this, b); }
+        constexpr FastQuaternion operator*(const FastQuaternion &b) const { return QuaternionMultiply(*this, b); }
 
-        FastQuaternion operator*(const UnityEngine::Quaternion &b) const { return QuaternionMultiply(*this, b); }
+        constexpr FastQuaternion operator*(const UnityEngine::Quaternion &b) const { return QuaternionMultiply(*this, b); }
 
-        FastVector3 operator*(const FastVector3 &b) const { return QuaternionMultiply(*this, b); }
+        constexpr FastVector3 operator*(const FastVector3 &b) const { return QuaternionMultiply(*this, b); }
 
-        FastVector3 operator*(const UnityEngine::Vector3 &b) const { return QuaternionMultiply(*this, b); }
+        constexpr FastVector3 operator*(const UnityEngine::Vector3 &b) const { return QuaternionMultiply(*this, b); }
 
 
 
-        bool operator ==(const UnityEngine::Quaternion& lhs) {
+        constexpr bool operator ==(const UnityEngine::Quaternion& lhs) {
             return lhs.x == x && lhs.y == y && lhs.z == z && lhs.w == w;
         }
 
-        bool operator !=(const UnityEngine::Quaternion& lhs) {
+        constexpr bool operator !=(const UnityEngine::Quaternion& lhs) {
             return lhs.x != x || lhs.y != y || lhs.z != z || lhs.w != w;
         }
 
-        float& operator[](int i) {
+        constexpr float& operator[](int i) {
             return (&x)[i];
         }
     };

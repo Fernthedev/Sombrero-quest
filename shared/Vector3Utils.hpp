@@ -61,26 +61,26 @@ namespace Sombrero {
             return LerpUnclamped(a, b, Clamp01(t));
         }
 
-        static FastVector3 LerpUnclamped(FastVector3 const& a, FastVector3 const& b, float const& t)
+        static constexpr FastVector3 LerpUnclamped(FastVector3 const& a, FastVector3 const& b, float const& t)
         {
             return FastVector3(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
         }
 
-        float sqrMagnitude() const {
+        constexpr float sqrMagnitude() const {
             return ((x * x) + (y * y) + (z * z));
         }
 
-        float Magnitude() const {
-            return std::sqrt((x * x) + (y * y) + (z * z));
+        constexpr float Magnitude() const {
+            return std::sqrt(double(x * x) + double(y * y) + double(z * z));
         }
-        float sqrDistance(const FastVector3& b) const {
+        constexpr float sqrDistance(const FastVector3& b) const {
             float dx = x - b.x;
             float dy = y - b.y;
             float dz = z - b.z;
             return dx * dx + dy * dy + dz * dz;
         }
 
-        float Distance(const FastVector3& b) const {
+        constexpr float Distance(const FastVector3& b) const {
             float dx = x - b.x;
             float dy = y - b.y;
             float dz = z - b.z;
@@ -103,7 +103,7 @@ namespace Sombrero {
         }
 
         // In case codegen method takes over
-        void NormalizeFast() {
+        constexpr void NormalizeFast() {
             float magnitude = Magnitude();
             if (magnitude == 0.0f) {
                 x = 0.0f;
@@ -113,34 +113,34 @@ namespace Sombrero {
             *this /= magnitude;
         }
 
-        static float Dot(FastVector3 const& lhs, FastVector3 const& rhs)
+        static constexpr float Dot(FastVector3 const& lhs, FastVector3 const& rhs)
 		{
 			return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 		}
 
 #define operatorOverload(name, operatore) \
-        FastVector3 operator operatore(const FastVector3& b) const { \
+        constexpr FastVector3 operator operatore(const FastVector3& b) const { \
             return FastVector3(this->x operatore b.x, this->y operatore b.y, this->z operatore b.z); \
         }                                \
-        FastVector3 operator operatore(const UnityEngine::Vector3& b) const { \
+        constexpr FastVector3 operator operatore(const UnityEngine::Vector3& b) const { \
             return FastVector3(this->x operatore b.x, this->y operatore b.y, this->z operatore b.z); \
         }                                \
-        FastVector3 operator operatore(float const& b) const { \
+        constexpr FastVector3 operator operatore(float const& b) const { \
             return FastVector3(this->x operatore b, this->y operatore b, this->z operatore b); \
         }                                 \
-        FastVector3& operator operatore##=(float const& bb) {  \
+        constexpr FastVector3& operator operatore##=(float const& bb) {  \
             x operatore##= bb;                       \
             y operatore##= bb;                        \
             z operatore##= bb;                        \
             return *this; \
         }                                 \
-        FastVector3& operator operatore##=(const FastVector3& bb) {  \
+        constexpr FastVector3& operator operatore##=(const FastVector3& bb) {  \
             x operatore##= bb.x;                       \
             y operatore##= bb.y;                        \
             z operatore##= bb.z;                        \
             return *this; \
         } \
-        FastVector3& operator operatore##=(const UnityEngine::Vector3& bb) {  \
+        constexpr FastVector3& operator operatore##=(const UnityEngine::Vector3& bb) {  \
             x operatore##= bb.x;                       \
             y operatore##= bb.y;                        \
             z operatore##= bb.z;                        \
@@ -154,20 +154,20 @@ namespace Sombrero {
 
 #undef operatorOverload
 
-        FastVector3 operator-() const {
+        constexpr FastVector3 operator-() const {
             return FastVector3(-x, -y, -z);
         }
 
 
-        bool operator ==(const UnityEngine::Vector3& lhs) {
+        constexpr bool operator ==(const UnityEngine::Vector3& lhs) {
             return lhs.x == x && lhs.y == y && lhs.z == z;
         }
 
-        inline bool operator !=(const UnityEngine::Vector3& lhs) {
+        constexpr bool operator !=(const UnityEngine::Vector3& lhs) {
             return lhs.x != x || lhs.y != y || lhs.z != z;
         }
 
-        float& operator[](int i) {
+        constexpr float& operator[](int i) {
             return (&x)[i];
         }
     };

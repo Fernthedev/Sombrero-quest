@@ -58,16 +58,16 @@ namespace Sombrero {
             return LerpUnclamped(a, b, Clamp01(t));
         }
 
-        static FastVector2 LerpUnclamped(FastVector2 const& a, FastVector2 const& b, float const& t)
+        static constexpr FastVector2 LerpUnclamped(FastVector2 const& a, FastVector2 const& b, float const& t)
         {
             return FastVector2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
         }
 
-        float Magnitude() const {
+        constexpr float Magnitude() const {
             return std::sqrt((x * x) + (y * y));
         }
 
-        float Distance(const FastVector2& b) const {
+        constexpr float Distance(const FastVector2& b) const {
             float dx = x - b.x;
             float dy = y - b.y;
             return sqrt(dx * dx + dy * dy);
@@ -84,7 +84,7 @@ namespace Sombrero {
         }
 
         // In case codegen method takes over
-        void NormalizeFast() {
+        constexpr void NormalizeFast() {
             float magnitude = Magnitude();
             if (magnitude == 0.0f) {
                 x = 0.0f;
@@ -94,26 +94,26 @@ namespace Sombrero {
         }
 
 #define operatorOverload(name, operatore) \
-        FastVector2 operator operatore(const FastVector2& b) const { \
+        constexpr FastVector2 operator operatore(const FastVector2& b) const { \
             return FastVector2(this->x operatore b.x, this->y operatore b.y); \
         }                                \
-        FastVector2 operator operatore(const UnityEngine::Vector2& b) const { \
+        constexpr FastVector2 operator operatore(const UnityEngine::Vector2& b) const { \
             return FastVector2(this->x operatore b.x, this->y operatore b.y); \
         }                                \
-        FastVector2 operator operatore(float const& b) const { \
+        constexpr FastVector2 operator operatore(float const& b) const { \
             return FastVector2(this->x operatore b, this->y operatore b); \
         }                                 \
-        FastVector2& operator operatore##=(float const& bb) {  \
+        constexpr FastVector2& operator operatore##=(float const& bb) {  \
             x operatore##= bb;                       \
             y operatore##= bb;                        \
             return *this; \
         }                                 \
-        FastVector2& operator operatore##=(const FastVector2& bb) {  \
+        constexpr FastVector2& operator operatore##=(const FastVector2& bb) {  \
             x operatore##= bb.x;                       \
             y operatore##= bb.y;                        \
             return *this; \
         } \
-        FastVector2& operator operatore##=(const UnityEngine::Vector2& bb) {  \
+        constexpr FastVector2& operator operatore##=(const UnityEngine::Vector2& bb) {  \
             x operatore##= bb.x;                       \
             y operatore##= bb.y;                        \
             return *this; \
@@ -127,30 +127,30 @@ namespace Sombrero {
 
 #undef operatorOverload
 
-        FastVector2 operator-() const {
+        constexpr FastVector2 operator-() const {
             return FastVector2(-x, -y);
         }
 
 
-        bool operator ==(const UnityEngine::Vector2& lhs) {
+        constexpr bool operator ==(const UnityEngine::Vector2& lhs) {
             return lhs.x == x && lhs.y == y;
         }
 
-        inline bool operator !=(const UnityEngine::Vector2& lhs) {
+        constexpr bool operator !=(const UnityEngine::Vector2& lhs) {
             return lhs.x != x || lhs.y != y;
         }
 
-        float& operator[](int i) {
+        constexpr float& operator[](int i) {
             return (&x)[i];
         }
     };
 
 #define operatorOverload(name, operator) \
-    static FastVector2 vector2##name(UnityEngine::Vector2 const &a, UnityEngine::Vector2 const &b) \
+    constexpr static FastVector2 vector2##name(UnityEngine::Vector2 const &a, UnityEngine::Vector2 const &b) \
     { \
         return FastVector2(a.x operator b.x, a.y operator b.y); \
     } \
-    static FastVector2 vector2##name (UnityEngine::Vector2 const& a, float const& b) { \
+    constexpr static FastVector2 vector2##name (UnityEngine::Vector2 const& a, float const& b) { \
         return FastVector2(a.x operator b, a.y operator b); \
     } \
 
