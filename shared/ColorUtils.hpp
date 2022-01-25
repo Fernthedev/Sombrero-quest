@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MiscUtils.hpp"
+#include "Concepts.hpp"
 
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
@@ -206,7 +207,26 @@ namespace Sombrero {
     public:
         // Implicit convert of vector
         constexpr FastColor(const Color& color) : Color(color.r, color.g, color.b, color.a) {}
+        
+#ifdef USE_SOMBRERO_IMPLICIT_CONVERSIONS
+        template<Sombrero::Float T>
+        constexpr FastColor(const T& vector) : Color(vector.x, vector.y, vector.z, vector.w) {}
 
+        template<Sombrero::Has4D T>
+        constexpr FastColor(const T& vector) : Color(vector.x, vector.y, vector.z, vector.w) {}
+        
+        template<Sombrero::Has3D T>
+        constexpr FastColor(const T& vector) : Color(vector.x, vector.y, vector.z, 1.0f) {}
+        
+        template<Sombrero::Has2D T>
+        constexpr FastColor(const T& vector) : Color(vector.x, vector.y, 0.0f, 1.0f) {}
+
+        template<Sombrero::HasRGB T>
+        constexpr FastColor(const T& color) : Color(color.r, color.g, color.b, 1.0f) {}
+        
+        template<Sombrero::HasRGBA T>
+        constexpr FastColor(const T& color) : Color(color.r, color.g, color.b, color.a) {}
+#endif
         constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : Color(r, g, b, a) {}
 
         // there are more colors here than unity normally has, sucks to be unity I guess lul
@@ -267,7 +287,7 @@ namespace Sombrero {
         }
 
 
-        constexpr FastColor Linear() const {
+        FastColor Linear() const {
             return FastColor(GammaToLinearSpace(r), GammaToLinearSpace(g), GammaToLinearSpace(b), a);
         }
 

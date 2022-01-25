@@ -1,9 +1,11 @@
 #pragma once
 
+#include <limits>
 #include <string>
 #include <concepts>
 #include <cmath>
 #include <algorithm>
+#include "Concepts.hpp"
 
 #ifdef SOMBRERO_DEBUG
 
@@ -17,14 +19,22 @@
 #endif
 
 namespace Sombrero {
-    inline static float Clamp01(float value)
+    
+    constexpr float Clamp01(float value)
     {
-        return std::clamp(value, 0.0f, 1.0f);
+        return value < 0.0f ? 0.0f : (value < 1.0f ? value : 1.0f);
     }
 
-    inline static float Lerp(float a, float b, float t)
+    template<Sombrero::Lerpable T>
+    constexpr T Lerp(T a, T b, float t)
     {
-        return a + (b - a) * Clamp01(t);
+        return T::Lerp(a, b, Clamp01(t));
+    }
+
+    template<Sombrero::Slerpable T>
+    constexpr T Slerp(T a, T b, float t)
+    {
+        return T::Slerp(a, b, Clamp01(t));
     }
     
     inline static float PingPong(float t, float length)
@@ -38,5 +48,32 @@ namespace Sombrero {
         //               /    \  /    \  /
         //zero_________ /      \/      \/
         return graph;
+    }
+
+    // Credit to sc2ad for making the sqrt and pow constexpr
+    namespace detail {
+        constexpr float sqrt(float x, float curr, float prev) {
+            return curr == prev
+                ? curr
+                : sqrt(x, 0.5 * (curr + x / curr), curr);
+        }
+    }
+
+
+    constexpr float power(float x, int p) 
+    {
+        if (p == 0) {
+            return 1;
+        } else if (p == 1) {
+            return x;
+        }
+        return x * power(x, p - 1);
+    }
+
+    constexpr float sqroot(float x) 
+    {
+        return x >= 0 && x < std::numeric_limits<float>::infinity()
+            ? detail::sqrt(x, x, 0)
+            : std::numeric_limits<float>::quiet_NaN();
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MiscUtils.hpp"
+#include "Concepts.hpp"
 
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
@@ -38,9 +39,27 @@ namespace Sombrero {
     public:
         // Implicit convert of vector
         constexpr FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {}
-
         constexpr FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
 
+#ifdef USE_SOMBRERO_IMPLICIT_CONVERSIONS
+        template<Sombrero::Float T>
+        constexpr FastVector2(const T& value) : Vector2(value, value) {}
+
+        template<Sombrero::HasRGBA T>
+        constexpr FastVector2(const T& color) : Vector2(color.r, color.g) {}
+        
+        template<Sombrero::HasRGB T>
+        constexpr FastVector2(const T& color) : Vector2(color.r, color.g) {}
+
+        template<Sombrero::Has4D T>
+        constexpr FastVector2(const T& vector) : Vector2(vector.x, vector.y) {}
+
+        template<Sombrero::Has3D T>
+        constexpr FastVector2(const T& vector) : Vector2(vector.x, vector.y) {}
+
+        template<Sombrero::Has2D T>
+        constexpr FastVector2(const T& vector) : Vector2(vector.x, vector.y) {}
+#endif
         CONSTEXPR_GETTER(one, {1.0f, 1.0f})
         CONSTEXPR_GETTER(zero, {0.0f, 0.0f})
 
@@ -64,22 +83,22 @@ namespace Sombrero {
         }
 
         constexpr float Magnitude() const {
-            return std::sqrt((x * x) + (y * y));
+            return ::Sombrero::sqroot((x * x) + (y * y));
         }
 
         constexpr float Distance(const FastVector2& b) const {
             float dx = x - b.x;
             float dy = y - b.y;
-            return sqrt(dx * dx + dy * dy);
+            return ::Sombrero::sqroot(dx * dx + dy * dy);
         }
 
-        static inline FastVector2 Normalize(FastVector2& vec) {
+        static constexpr FastVector2 Normalize(FastVector2& vec) {
             float magnitude = vec.Magnitude();
             if (magnitude == 0.0f) return {0.0f, 0.0f};
             return vec / magnitude;
         }
 
-        inline void Normalize() {
+        constexpr void Normalize() {
             NormalizeFast();
         }
 
