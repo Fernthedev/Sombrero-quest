@@ -59,7 +59,6 @@ namespace Sombrero {
         }
     }
 
-
     constexpr float power(float x, int p) 
     {
         if (p == 0) {
@@ -67,7 +66,9 @@ namespace Sombrero {
         } else if (p == 1) {
             return x;
         }
-        return x * power(x, p - 1);
+        // if p > 0, return x * pow x, p
+        // else divide x by pow x, -p
+        return p > 0 ? x * power(x, p - 1) : x / power(x, -p + 1);
     }
 
     constexpr float sqroot(float x) 

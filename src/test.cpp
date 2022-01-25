@@ -39,4 +39,8 @@ int main() {
     vec3_2 += quat;
     vec3_2 += vec2;
 #endif
+    constexpr float val = Sombrero::power(2.0f, 2);
+    constexpr float val2 = Sombrero::power(2.0f, -1);
+    static_assert(val2 == 0.5f);
+    static_assert(val == 4.0f);
 }
