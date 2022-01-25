@@ -41,6 +41,10 @@ int main() {
 #endif
     constexpr float val = Sombrero::power(2.0f, 2);
     constexpr float val2 = Sombrero::power(2.0f, -1);
-    static_assert(val2 == 0.5f);
+    constexpr float val3 = Sombrero::power(3, -2);
+    constexpr float val4 = Sombrero::power(5, -3);
     static_assert(val == 4.0f);
+    static_assert(val2 == 0.5f);
+    static_assert(val3 == 1.0f / 9.0f);
+    static_assert(val4 == 1.0f / 125.0f);
 }
