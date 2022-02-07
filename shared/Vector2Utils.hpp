@@ -3,6 +3,8 @@
 #include "MiscUtils.hpp"
 #include "Concepts.hpp"
 
+#include <utility>
+
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Vector2.hpp"
@@ -187,3 +189,15 @@ namespace Sombrero {
 }
 DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastVector2, "UnityEngine", "Vector2");
 #undef CONSTEXPR_GETTER
+
+namespace std {
+    template <> 
+    struct hash<Sombrero::Vector2>
+    {
+        constexpr size_t operator()(const Sombrero::FastVector2 & v) const
+        {
+            std::hash<float> h;
+            return h(v.x) ^ h(v.y);
+        }
+    };
+}

@@ -145,3 +145,15 @@ namespace Sombrero {
         }
     };
 }
+
+namespace std {
+    template <> 
+    struct hash<Sombrero::HSBColor>
+    {
+        constexpr size_t operator()(const Sombrero::HSBColor & color) const
+        {
+            std::hash<float> h;
+            return h(color.h) ^ h(color.s) ^ h(color.b) ^ h(color.a);
+        }
+    };
+}

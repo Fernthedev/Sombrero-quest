@@ -3,6 +3,8 @@
 #include "MiscUtils.hpp"
 #include "Vector3Utils.hpp"
 
+#include <utility>
+
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Quaternion.hpp"
@@ -117,3 +119,15 @@ namespace Sombrero {
 #endif
 }
 DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastQuaternion, "UnityEngine", "Quaternion");
+
+namespace std {
+    template <> 
+    struct hash<Sombrero::FastQuaternion>
+    {
+        constexpr size_t operator()(const Sombrero::FastQuaternion & quat) const
+        {
+            std::hash<float> h;
+            return h(quat.x) ^ h(quat.y) ^ h(quat.z) ^ h(quat.w);
+        }
+    };
+}
