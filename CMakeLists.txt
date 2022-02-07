@@ -25,6 +25,8 @@ add_compile_definitions(ID=\"${MOD_ID}\")
 add_compile_definitions(MOD_ID=\"${MOD_ID}\")
 add_compile_definitions(USE_CODEGEN_FIELDS)
 add_compile_definitions(DEBUGB=1) # disable debug logs
+add_compile_definitions(SOMBRERO_DEBUG='1')
+add_compile_definitions(HAS_CODEGEN)
 
 # recursively get all src files
 RECURSE_FILES(cpp_file_list ${SOURCE_DIR}/*.cpp)

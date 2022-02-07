@@ -23,7 +23,9 @@
     {
       "id": "codegen",
       "versionRange": "*",
-      "additionalData": {}
+      "additionalData": {
+        "private": true
+      }
     }
   ],
   "additionalData": {}
