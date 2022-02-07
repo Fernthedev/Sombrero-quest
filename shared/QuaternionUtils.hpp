@@ -3,6 +3,8 @@
 #include "MiscUtils.hpp"
 #include "Vector3Utils.hpp"
 
+#include <utility>
+
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Quaternion.hpp"
@@ -60,6 +62,25 @@ namespace Sombrero {
         // Implicit convert of quaternion
         constexpr FastQuaternion(const Quaternion& quaternion) :Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w) {} // x(quaternion.x), y(quaternion.y), z(quaternion.z) {}
 
+#ifdef USE_SOMBRERO_IMPLICIT_CONVERSIONS
+        template<Sombrero::Float T>
+        constexpr FastQuaternion(const T& value) : Quaternion(value, value, value, value) {}
+
+        template<Sombrero::HasRGBA T>
+        constexpr FastQuaternion(const T& color) : Quaternion(color.x, color.y, color.z, color.a) {}
+        
+        template<Sombrero::HasRGB T>
+        constexpr FastQuaternion(const T& color) : Quaternion(color.x, color.y, color.z, 1.0f) {}
+
+        template<Sombrero::Has4D T>
+        constexpr FastQuaternion(const T& vector) : Quaternion(vector.x, vector.y, vector.z, vector.w) {}
+
+        template<Sombrero::Has3D T>
+        constexpr FastQuaternion(const T& vector) : Quaternion(vector.x, vector.y, vector.z, 1.0f) {}
+        
+        template<Sombrero::Has2D T>
+        constexpr FastQuaternion(const T& vector) : Quaternion(vector.x, vector.y, 0.0f, 1.0f) {}
+#endif
         constexpr FastQuaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 1.0f) : Quaternion(x, y, z, w) {}
 
         constexpr static inline FastQuaternion identity() {
@@ -98,3 +119,15 @@ namespace Sombrero {
 #endif
 }
 DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastQuaternion, "UnityEngine", "Quaternion");
+
+namespace std {
+    template <> 
+    struct hash<Sombrero::FastQuaternion>
+    {
+        constexpr size_t operator()(const Sombrero::FastQuaternion & quat) const
+        {
+            std::hash<float> h;
+            return h(quat.x) ^ h(quat.y) ^ h(quat.z) ^ h(quat.w);
+        }
+    };
+}

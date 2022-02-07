@@ -1,6 +1,9 @@
 #pragma once
 
 #include "MiscUtils.hpp"
+#include "Concepts.hpp"
+
+#include <utility>
 
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #ifdef HAS_CODEGEN
@@ -37,8 +40,26 @@ namespace Sombrero {
     struct FastVector3 : public UnityEngine::Vector3 {
     public:
         // Implicit convert of vector
-        constexpr FastVector3(const Vector3& vector) : Vector3(vector.x, vector.y, vector.z) {} // x(vector.x), y(vector.y), z(vector.z) {}
+        constexpr FastVector3(const Vector3& vector) : Vector3(vector.x, vector.y, vector.z) {}
+#ifdef USE_SOMBRERO_IMPLICIT_CONVERSIONS
+        template<Sombrero::Float T>
+        constexpr FastVector3(const T& value) : Vector3(value, value, value) {}
 
+        template<Sombrero::HasRGBA T>
+        constexpr FastVector3(const T& color) : Vector3(color.r, color.g, color.b) {}
+        
+        template<Sombrero::HasRGB T>
+        constexpr FastVector3(const T& color) : Vector3(color.r, color.g, color.b) {}
+
+        template<Sombrero::Has4D T>
+        constexpr FastVector3(const T& vector) : Vector3(vector.x, vector.y, vector.z) {}
+
+        template<Sombrero::Has3D T>
+        constexpr FastVector3(const T& vector) : Vector3(vector.x, vector.y, vector.z) {}
+        
+        template<Sombrero::Has2D T>
+        constexpr FastVector3(const T& vector) : Vector3(vector.x, vector.y, 0.0f) {}
+#endif
         constexpr FastVector3(float x = 0.0f, float y = 0.0f, float z = 0.0f) : Vector3(x, y, z) {}
 
 
@@ -71,7 +92,7 @@ namespace Sombrero {
         }
 
         constexpr float Magnitude() const {
-            return std::sqrt(double(x * x) + double(y * y) + double(z * z));
+            return ::Sombrero::sqroot(double(x * x) + double(y * y) + double(z * z));
         }
         constexpr float sqrDistance(const FastVector3& b) const {
             float dx = x - b.x;
@@ -84,31 +105,32 @@ namespace Sombrero {
             float dx = x - b.x;
             float dy = y - b.y;
             float dz = z - b.z;
-            return sqrt(dx * dx + dy * dy + dz * dz);
+            return ::Sombrero::sqroot(dx * dx + dy * dy + dz * dz);
         }
 
-        static inline FastVector3 Normalize(const FastVector3& vec) {
+        static constexpr FastVector3 Normalize(const FastVector3& vec) {
             float magnitude = vec.Magnitude();
             if (magnitude == 0.0f) return zero();
             return vec / magnitude;
         }
 
-        inline FastVector3 get_normalized() const
+        constexpr inline FastVector3 get_normalized() const
         {
             return FastVector3::Normalize(*this);
         }
 
-        inline void Normalize() {
+        constexpr void Normalize() {
             NormalizeFast();
         }
 
         // In case codegen method takes over
         constexpr void NormalizeFast() {
             float magnitude = Magnitude();
-            if (magnitude == 0.0f) {
+            if (magnitude < 1E-5f) {
                 x = 0.0f;
                 y = 0.0f;
                 z = 0.0f;
+                return;
             }
             *this /= magnitude;
         }
@@ -197,3 +219,15 @@ namespace Sombrero {
 }
 DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastVector3, "UnityEngine", "Vector3");
 #undef CONSTEXPR_GETTER
+
+namespace std {
+    template <> 
+    struct hash<Sombrero::FastVector3>
+    {
+        constexpr size_t operator()(const Sombrero::FastVector3 & v) const
+        {
+            std::hash<float> h;
+            return h(v.z) ^ h(v.y) ^ h(v.z);
+        }
+    };
+}
