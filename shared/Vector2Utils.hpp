@@ -192,7 +192,7 @@ DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastVector2, "UnityEngine", "Vector2");
 
 namespace std {
     template <> 
-    struct hash<Sombrero::Vector2>
+    struct hash<Sombrero::FastVector2>
     {
         constexpr size_t operator()(const Sombrero::FastVector2 & v) const
         {
