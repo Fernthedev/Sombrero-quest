@@ -389,7 +389,7 @@ namespace std {
     template <> 
     struct hash<Sombrero::FastColor>
     {
-        constexpr size_t operator()(const Sombrero::FastColor & color) const
+        size_t operator()(const Sombrero::FastColor & color) const
         {
             std::hash<float> h;
             return h(color.r) ^ h(color.g) ^ h(color.b) ^ h(color.a);

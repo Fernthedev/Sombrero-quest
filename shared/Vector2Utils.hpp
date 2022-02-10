@@ -194,7 +194,7 @@ namespace std {
     template <> 
     struct hash<Sombrero::FastVector2>
     {
-        constexpr size_t operator()(const Sombrero::FastVector2 & v) const
+        size_t operator()(const Sombrero::FastVector2 & v) const
         {
             std::hash<float> h;
             return h(v.x) ^ h(v.y);

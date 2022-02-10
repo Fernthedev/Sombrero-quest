@@ -124,7 +124,7 @@ namespace std {
     template <> 
     struct hash<Sombrero::FastQuaternion>
     {
-        constexpr size_t operator()(const Sombrero::FastQuaternion & quat) const
+        size_t operator()(const Sombrero::FastQuaternion & quat) const
         {
             std::hash<float> h;
             return h(quat.x) ^ h(quat.y) ^ h(quat.z) ^ h(quat.w);
