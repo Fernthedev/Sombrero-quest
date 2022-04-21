@@ -227,7 +227,7 @@ namespace std {
         size_t operator()(const Sombrero::FastVector3 & v) const
         {
             std::hash<float> h;
-            return h(v.z) ^ h(v.y) ^ h(v.z);
+            return h(v.x) ^ h(v.y) ^ h(v.z);
         }
     };
 }
