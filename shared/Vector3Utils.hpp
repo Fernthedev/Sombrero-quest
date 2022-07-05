@@ -189,6 +189,14 @@ namespace Sombrero {
             return lhs.x != x || lhs.y != y || lhs.z != z;
         }
 
+        constexpr bool operator ==(const Sombrero::FastVector3& lhs) {
+            return lhs.x == x && lhs.y == y && lhs.z == z;
+        }
+
+        constexpr bool operator !=(const Sombrero::FastVector3& lhs) {
+            return lhs.x != x || lhs.y != y || lhs.z != z;
+        }
+
         constexpr float& operator[](int i) {
             return (&x)[i];
         }
