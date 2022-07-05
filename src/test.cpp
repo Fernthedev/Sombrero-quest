@@ -6,6 +6,7 @@
 #include "ColorUtils.hpp"
 #include "HSBColor.hpp"
 #include "RandomUtils.hpp"
+#include "linq.hpp"
 
 int main() {
     Sombrero::FastVector3 vec3;
