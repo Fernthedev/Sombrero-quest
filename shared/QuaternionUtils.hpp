@@ -91,6 +91,12 @@ namespace Sombrero {
             return QuaternionStr(*this);
         }
 
+        constexpr static float Dot(UnityEngine::Quaternion const& a, UnityEngine::Quaternion const& b)
+		{
+			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+		}
+
+
         constexpr FastQuaternion operator*(const FastQuaternion &b) const { return QuaternionMultiply(*this, b); }
 
         constexpr FastQuaternion operator*(const UnityEngine::Quaternion &b) const { return QuaternionMultiply(*this, b); }
