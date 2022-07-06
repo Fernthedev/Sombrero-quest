@@ -29,14 +29,14 @@ namespace Sombrero::Linq {
         t.end();
     };
 
-    template<class I>
+    template<class I, typename F>
     requires (input_iterator<I>)
     struct WhereIterable {
         private:
         I start;
         I last;
         using T = decltype(*start);
-        std::function<bool (T&)> function;
+        F function;
         public:
         struct WhereIterator {
             explicit WhereIterator(WhereIterable const& v, I iter) : iterable(v), iterator(iter) {
@@ -76,23 +76,23 @@ namespace Sombrero::Linq {
         auto end() const {
             return WhereIterator(*this, last);
         }
-        template<class R, class F>
+        template<class R>
         requires (range<R>)
         explicit WhereIterable(R&& range, F&& func) : start(range.begin()), last(range.end()), function(func) {}
     };
 
     template<class R, class F>
     requires (range<R>)
-    WhereIterable(R&& r, F&&) -> WhereIterable<decltype(r.begin())>;
+    WhereIterable(R&& r, F&&) -> WhereIterable<decltype(r.begin()), F>;
 
-    template<class I, class R>
+    template<class I, class R, typename F>
     requires (input_iterator<I>)
     struct SelectIterable {
         private:
         I start;
         I last;
         using T = decltype(*start);
-        std::function<R (T&)> function;
+        F function;
         public:
         struct SelectIterator {
             explicit SelectIterator(SelectIterable const& v, I iter) : iterable(v), iterator(iter) {}
@@ -119,14 +119,14 @@ namespace Sombrero::Linq {
         auto end() const {
             return SelectIterator(*this, last);
         }
-        template<class Range, class F>
+        template<class Range>
         requires (range<Range>)
         explicit SelectIterable(Range&& range, F&& func) : start(range.begin()), last(range.end()), function(func) {}
     };
 
     template<class Range, class F>
     requires (range<Range>)
-    SelectIterable(Range&& r, F&&) -> SelectIterable<decltype(r.begin()), std::invoke_result_t<F, decltype(*r.begin())>>;
+    SelectIterable(Range&& r, F&&) -> SelectIterable<decltype(r.begin()), std::invoke_result_t<F, decltype(*r.begin())>, F>;
 
 
     template<typename T, typename Iterator = typename T::iterator>
