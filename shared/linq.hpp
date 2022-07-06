@@ -29,6 +29,21 @@ namespace Sombrero::Linq {
         t.end();
     };
 
+    template<class T>
+    concept has_size_member = requires (T t) {
+        {t.size} -> Sombrero::Linq::convertible_to<il2cpp_array_size_t>;
+    };
+
+    template<class T>
+    concept has_size_call = requires (T t) {
+        {t.size()} -> Sombrero::Linq::convertible_to<il2cpp_array_size_t>;
+    };
+
+    template<class I1, class I2>
+    concept has_distance = requires (I1 i1, I2 i2) {
+        {i1 - i2} -> Sombrero::Linq::convertible_to<il2cpp_array_size_t>;
+    };
+
     template<class I, class F>
     requires (input_iterator<I>)
     struct WhereIterable {
@@ -49,6 +64,12 @@ namespace Sombrero::Linq {
             T& operator*() const {
                 return *iterator;
             }
+            // ptrdiff_t can't be used for this type, since we can't know the distance.
+            using difference_type = std::ptrdiff_t;
+            using value_type = typename std::iterator_traits<I>::value_type;
+            using pointer = typename std::iterator_traits<I>::pointer;
+            using reference = typename std::iterator_traits<I>::reference;
+            using iterator_category = std::forward_iterator_tag;
             WhereIterator& operator++() {
                 // Move first, then compare.
                 while (++iterator != iterable.last) {
@@ -101,6 +122,13 @@ namespace Sombrero::Linq {
             auto operator*() const {
                 return iterable.function(*iterator);
             }
+            // Actually has value for this type
+            // TODO: Create - operators
+            using difference_type = std::ptrdiff_t;
+            using value_type = std::invoke_result<F, I>;
+            using pointer = void;
+            using reference = void;
+            using iterator_category = std::forward_iterator_tag;
             SelectIterator& operator++() {
                 ++iterator;
                 return *this;
@@ -166,6 +194,43 @@ namespace Sombrero::Linq {
     requires (range<T>)
     auto Select(T const& list, F&& fn) {
         return SelectIterable(list, fn);
+    }
+
+    template<class T>
+    requires (range<T>)
+    auto ToArray(T&& range) {
+        // TODO: Improve this using better concepts
+        // We can block copy if we satisfy contiguous iterator
+        // So, this is actually kind of interesting.
+        // If we can compute the distance (ex, we can easily tell how large our collection is)
+        // Then we should do that
+        // Otherwise, we kinda have to make a vector then shrink it and be good to go
+        using ItemT = std::remove_reference_t<decltype(*range.begin())>;
+        if constexpr (has_size_call<T>) {
+            ArrayW<ItemT> arr(static_cast<il2cpp_array_size_t>(range.size()));
+            // With a size method call, there's no guarantee we can block copy
+            std::copy(range.begin(), range.end(), arr.begin());
+            return arr;
+        } else if constexpr (has_size_member<T>) {
+            ArrayW<ItemT> arr(static_cast<il2cpp_array_size_t>(range.size));
+            // With a size member, we can be FAIRLY confident we can block copy
+            // but lets assume we can't
+            std::copy(range.begin(), range.end(), arr.begin());
+            return arr;
+        } else if constexpr (has_distance<decltype(range.end()), decltype(range.begin())>) {
+            // With a iterator distance, we can be even more confident we can block copy
+            // let's actually do the block copy here.
+            ArrayW<ItemT> arr(static_cast<il2cpp_array_size_t>(range.end() - range.begin()));
+            std::copy(range.begin(), range.end(), arr.begin());
+            return arr;
+        } else {
+            // We don't know how to make an array of the correct size.
+            // Lets make a vector and fill it, instead.
+            std::vector<ItemT> vec(range.begin(), range.end());
+            ArrayW<ItemT> arr(vec.size());
+            std::copy(vec.begin(), vec.end(), arr.begin());
+            return arr;
+        }
     }
 
     template<Iterable T, typename V = typename T::value_type, typename F>

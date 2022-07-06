@@ -7,6 +7,7 @@
 #include "HSBColor.hpp"
 #include "RandomUtils.hpp"
 #include "linq.hpp"
+#include "linq_functional.hpp"
 
 int main() {
     Sombrero::FastVector3 vec3;
@@ -58,5 +59,13 @@ int main() {
     for (auto item : Where(a, [&](auto& v) {a[0] = 3; return v == 0;})) {
         // iterate all the items that are exactly 0
     }
-
+    ArrayW<int> x(ToArray(a));
+    auto coll = a | Functional::Where([](int x) {return x > 3;})
+                | Functional::Select([](int x) {return bool(x);})
+                | Functional::ToArray();
+    static_assert(std::is_same_v<decltype(coll), ArrayW<bool>>);
+    for (auto item : coll) {
+        static_assert(std::is_same_v<decltype(item), bool>);
+        // iterate all the items that are greater than 3
+    }
 }
