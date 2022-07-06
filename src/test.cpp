@@ -54,7 +54,8 @@ int main() {
     for (auto item : Select(a, [](auto& v) {return float(v);})) {
         // iterate the selected floats
     }
-    for (auto item : Where(a, [](auto& v) {return v == 0;})) {
+    // Show that a captureful lambda plays nice
+    for (auto item : Where(a, [&](auto& v) {a[0] = 3; return v == 0;})) {
         // iterate all the items that are exactly 0
     }
 
