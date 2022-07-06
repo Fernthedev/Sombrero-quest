@@ -61,6 +61,7 @@ int main() {
     }
     ArrayW<int> x(ToArray(a));
     auto coll = a | Functional::Where([](int x) {return x > 3;})
+                | Functional::ToVector()
                 | Functional::Select([](int x) {return bool(x);})
                 | Functional::ToArray();
     static_assert(std::is_same_v<decltype(coll), ArrayW<bool>>);

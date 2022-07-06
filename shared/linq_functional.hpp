@@ -23,7 +23,7 @@ namespace Sombrero::Linq::Functional {
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            return Sombrero::Linq::SelectIterable<decltype(range.begin()), F>(range, std::forward<F>(function));
+            return Sombrero::Linq::SelectIterable<decltype(range.begin()), F, decltype(function(*range.begin()))>(range, std::forward<F>(function));
         }
     };
     struct ToArray {
@@ -32,6 +32,14 @@ namespace Sombrero::Linq::Functional {
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
             return Sombrero::Linq::ToArray(std::forward<T>(range));
+        }
+    };
+    struct ToVector {
+        explicit ToVector() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::ToVector(std::forward<T>(range));
         }
     };
     #ifdef USE_CODEGEN

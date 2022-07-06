@@ -106,7 +106,7 @@ namespace Sombrero::Linq {
     requires (range<R>)
     WhereIterable(R&& r, F&&) -> WhereIterable<decltype(r.begin()), F>;
 
-    template<class I, class F>
+    template<class I, class F, class R>
     requires (input_iterator<I>)
     struct SelectIterable {
         private:
@@ -119,15 +119,15 @@ namespace Sombrero::Linq {
             // TODO: Add support for function being invoked with index
             // TODO: Do we want to evaluate on * or have * always be post-evaluation?
             // Unclear which makes more sense.
-            auto operator*() const {
+            R operator*() const {
                 return iterable.function(*iterator);
             }
             // Actually has value for this type
             // TODO: Create - operators
             using difference_type = std::ptrdiff_t;
-            using value_type = std::invoke_result<F, I>;
+            using value_type = R;
             using pointer = void;
-            using reference = void;
+            using reference = R&;
             using iterator_category = std::forward_iterator_tag;
             SelectIterator& operator++() {
                 ++iterator;
@@ -156,7 +156,7 @@ namespace Sombrero::Linq {
 
     template<class Range, class F>
     requires (range<Range>)
-    SelectIterable(Range&& r, F&&) -> SelectIterable<decltype(r.begin()), F>;
+    SelectIterable(Range&& r, F&& func) -> SelectIterable<decltype(r.begin()), F, decltype(func(*r.begin()))>;
 
 
     template<typename T, typename Iterator = typename T::iterator>
@@ -231,6 +231,12 @@ namespace Sombrero::Linq {
             std::copy(vec.begin(), vec.end(), arr.begin());
             return arr;
         }
+    }
+
+    template<class T>
+    requires (range<T>)
+    auto ToVector(T&& range) {
+        return std::vector(range.begin(), range.end());
     }
 
     template<Iterable T, typename V = typename T::value_type, typename F>
