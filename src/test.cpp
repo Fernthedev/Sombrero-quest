@@ -48,4 +48,14 @@ int main() {
     static_assert(val2 == 0.5f);
     static_assert(val3 == 1.0f / 9.0f);
     static_assert(val4 == 1.0f / 125.0f);
+
+    using namespace Sombrero::Linq;
+    ArrayW<int> a(5);
+    for (auto item : Select(a, [](auto& v) {return float(v);})) {
+        // iterate the selected floats
+    }
+    for (auto item : Where(a, [](auto& v) {return v == 0;})) {
+        // iterate all the items that are exactly 0
+    }
+
 }
