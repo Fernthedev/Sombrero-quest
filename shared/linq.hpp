@@ -1,6 +1,9 @@
 #pragma once
 
 #include <concepts>
+#include "Concepts.hpp"
+#include "beatsaber-hook/shared/utils/typedefs-array.hpp"
+#include <optional>
 
 namespace Sombrero::Linq {
 
