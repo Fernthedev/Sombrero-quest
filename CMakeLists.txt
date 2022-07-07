@@ -28,6 +28,8 @@ add_compile_definitions(DEBUGB=1) # disable debug logs
 add_compile_definitions(SOMBRERO_DEBUG='1')
 add_compile_definitions(HAS_CODEGEN)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # recursively get all src files
 RECURSE_FILES(cpp_file_list ${SOURCE_DIR}/*.cpp)
 RECURSE_FILES(c_file_list ${SOURCE_DIR}/*.c)
