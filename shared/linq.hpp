@@ -44,6 +44,27 @@ namespace Sombrero::Linq {
         {i1 - i2} -> Sombrero::Linq::convertible_to<il2cpp_array_size_t>;
     };
 
+    template<class T>
+    concept can_get_size = has_size_member<T> || has_size_call<T> || requires (T t) {
+        requires has_distance<decltype(t.end()), decltype(t.begin())>;
+    };
+    template<class T>
+    requires (range<T> && can_get_size<T>)
+    il2cpp_array_size_t get_size(T&& range) {
+        if constexpr (has_distance<decltype(range.end()), decltype(range.begin())>) {
+            // Try distance first
+            return range.end() - range.begin();
+        } else if constexpr (has_size_call<T>) {
+            // Then try the size method call
+            return range.size();
+        } else if constexpr (has_size_member<T>) {
+            // Then try the size member (TODO: Maybe not?)
+            return range.size;
+        } else {
+            static_assert(has_size_call<T> || has_size_member<T> || has_distance<decltype(range.end()), decltype(range.begin())>, "Does not satisfy can_get_size!");
+        }
+    }
+
     template<class I, class F>
     requires (input_iterator<I>)
     struct WhereIterable {
@@ -206,37 +227,51 @@ namespace Sombrero::Linq {
         // Then we should do that
         // Otherwise, we kinda have to make a vector then shrink it and be good to go
         using ItemT = std::remove_reference_t<decltype(*range.begin())>;
-        if constexpr (has_size_call<T>) {
-            ArrayW<ItemT> arr(static_cast<il2cpp_array_size_t>(range.size()));
-            // With a size method call, there's no guarantee we can block copy
+        if constexpr (can_get_size<T>) {
+            ArrayW<ItemT> arr(get_size<T>(std::forward<T>(range)));
             std::copy(range.begin(), range.end(), arr.begin());
-            return arr;
-        } else if constexpr (has_size_member<T>) {
-            ArrayW<ItemT> arr(static_cast<il2cpp_array_size_t>(range.size));
-            // With a size member, we can be FAIRLY confident we can block copy
-            // but lets assume we can't
-            std::copy(range.begin(), range.end(), arr.begin());
-            return arr;
-        } else if constexpr (has_distance<decltype(range.end()), decltype(range.begin())>) {
-            // With a iterator distance, we can be even more confident we can block copy
-            // let's actually do the block copy here.
-            ArrayW<ItemT> arr(static_cast<il2cpp_array_size_t>(range.end() - range.begin()));
-            std::copy(range.begin(), range.end(), arr.begin());
-            return arr;
-        } else {
-            // We don't know how to make an array of the correct size.
-            // Lets make a vector and fill it, instead.
-            std::vector<ItemT> vec(range.begin(), range.end());
-            ArrayW<ItemT> arr(vec.size());
-            std::copy(vec.begin(), vec.end(), arr.begin());
             return arr;
         }
+        // We don't know how to get the size, lets copy into a buffer
+        // Then copy to our array.
+        // TODO: We use a vector. vector<bool> will break.
+        std::vector<ItemT> vec(range.begin(), range.end());
+        ArrayW<ItemT> arr(vec.size());
+        std::copy(vec.begin(), vec.end(), arr.begin());
+        return arr;
     }
 
     template<class T>
     requires (range<T>)
     auto ToVector(T&& range) {
         return std::vector(range.begin(), range.end());
+    }
+
+    template<class T>
+    requires (range<T>)
+    auto ToList(T&& range) {
+        using ItemT = std::remove_reference_t<decltype(*range.begin())>;
+        if constexpr (can_get_size<T>) {
+            auto lst = il2cpp_utils::NewSpecific<List<ItemT>*>(get_size<T>(std::forward<T>(range)));
+            // Now that we have a list that is big enough, lets copy to it
+            #ifdef HAS_CODEGEN
+            std::copy(range.begin(), range.end(), lst->items.begin());
+            #else
+            std::copy(range.begin(), range.end(), &lst->items->values[0]);
+            #endif
+            return lst;
+        }
+        // We can't get the size, so we have to copy into some buffer and then copy to the list
+        // TODO: We use a vector. vector<bool> will break.
+        std::vector<ItemT> vec(range.begin(), range.end());
+        auto lst = il2cpp_utils::NewSpecific<List<ItemT>*>(vec.size());
+        // Now that we have a list that is big enough, lets copy to it
+        #ifdef HAS_CODEGEN
+        std::copy(vec.begin(), vec.end(), lst->items.begin());
+        #else
+        std::copy(vec.begin(), vec.end(), &lst->items->values[0]);
+        #endif
+        return lst;
     }
 
     template<Iterable T, typename V = typename T::value_type, typename F>

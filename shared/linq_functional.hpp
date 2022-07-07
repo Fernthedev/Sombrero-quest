@@ -42,16 +42,14 @@ namespace Sombrero::Linq::Functional {
             return Sombrero::Linq::ToVector(std::forward<T>(range));
         }
     };
-    #ifdef USE_CODEGEN
     struct ToList {
         explicit ToList() {}
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            // TODO: Have this do the right thing
+            return Sombrero::Linq::ToList(std::forward<T>(range));
         }
     };
-    #endif
     template<class T, class R>
     requires (Sombrero::Linq::range<T>)
     auto operator|(T&& inp, R&& rhs) {
