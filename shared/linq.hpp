@@ -243,6 +243,26 @@ namespace Sombrero::Linq {
 
     template<class T>
     requires (range<T>)
+    auto Count(T&& range) {
+        // TODO: Improve this using better concepts
+        // We can block copy if we satisfy contiguous iterator
+        // So, this is actually kind of interesting.
+        // If we can compute the distance (ex, we can easily tell how large our collection is)
+        // Then we should do that
+        // Otherwise, we kinda have to make a vector then shrink it and be good to go
+        using ItemT = std::remove_reference_t<decltype(*range.begin())>;
+        if constexpr (can_get_size<T>) {
+            return get_size<T>(std::forward<T>(range));
+        }
+        // We don't know how to get the size, lets copy into a buffer
+        // Then copy to our array.
+        // TODO: We use a vector. vector<bool> will break.
+        std::vector<ItemT> vec(range.begin(), range.end());
+        return vec.size();
+    }
+
+    template<class T>
+    requires (range<T>)
     auto ToVector(T&& range) {
         return std::vector(range.begin(), range.end());
     }

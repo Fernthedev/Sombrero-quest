@@ -42,6 +42,14 @@ namespace Sombrero::Linq::Functional {
             return Sombrero::Linq::ToVector(std::forward<T>(range));
         }
     };
+    struct Count {
+        explicit Count() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::Count(std::forward<T>(range));
+        }
+    };
     struct ToList {
         explicit ToList() {}
         template<class T>
