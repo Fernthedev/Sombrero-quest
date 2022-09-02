@@ -216,6 +216,12 @@ namespace Sombrero::Linq {
     auto Select(T const& list, F&& fn) {
         return SelectIterable(list, fn);
     }
+    
+    template<class T>
+    requires (range<T>)
+    auto Reverse(T&& list) {
+        return std::span(std::rbegin(list), std::rend(list));
+    }
 
     template<class T>
     requires (range<T>)

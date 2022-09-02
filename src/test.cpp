@@ -69,4 +69,6 @@ int main() {
         static_assert(std::is_same_v<decltype(item), bool>);
         // iterate all the items that are greater than 3
     }
+
+    auto reverse = coll | Functional::Reverse();
 }

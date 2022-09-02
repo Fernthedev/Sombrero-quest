@@ -26,6 +26,70 @@ namespace Sombrero::Linq::Functional {
             return Sombrero::Linq::SelectIterable<decltype(range.begin()), F, decltype(function(*range.begin()))>(range, std::forward<F>(function));
         }
     };
+
+    struct First {
+        explicit First() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::First(std::forward<T>(range));
+        }
+    };
+
+    struct FirstOrDefault {
+        explicit FirstOrDefault() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::FirstOrDefault(std::forward<T>(range));
+        }
+    };
+
+    struct Last {
+        explicit Last() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::Last(std::forward<T>(range));
+        }
+    };
+
+    struct LastOrDefault {
+        explicit LastOrDefault() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::LastOrDefault(std::forward<T>(range));
+        }
+    };
+
+    struct Any {
+        explicit Any() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::Any(std::forward<T>(range));
+        }
+    };
+
+    struct All {
+        explicit All() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::All(std::forward<T>(range));
+        }
+    };
+
+    struct Reverse {
+        explicit Reverse() {}
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) {
+            return Sombrero::Linq::Reverse(std::forward<T>(range));
+        }
+    };
+
     struct ToArray {
         explicit ToArray() {}
         template<class T>
