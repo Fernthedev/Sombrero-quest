@@ -27,57 +27,76 @@ namespace Sombrero::Linq::Functional {
         }
     };
 
+    template<class F>
     struct First {
-        explicit First() {}
+        F function;
+        explicit First(F&& func) : function(func) {}
+
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            return Sombrero::Linq::First(std::forward<T>(range));
+            return Sombrero::Linq::First(std::forward<T>(range), function);
         }
     };
 
+    template<class F>
     struct FirstOrDefault {
-        explicit FirstOrDefault() {}
+        F function;
+        explicit FirstOrDefault(F&& func) : function(func) {}
+
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            return Sombrero::Linq::FirstOrDefault(std::forward<T>(range));
+            return Sombrero::Linq::FirstOrDefault(std::forward<T>(range), function);
         }
     };
 
+    template<class F>
     struct Last {
-        explicit Last() {}
+        F function;
+        explicit Last(F&& func) : function(func) {}
+
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            return Sombrero::Linq::Last(std::forward<T>(range));
+            return Sombrero::Linq::Last(std::forward<T>(range), function);
         }
     };
 
+    template<class F>
     struct LastOrDefault {
-        explicit LastOrDefault() {}
+        F function;
+        explicit LastOrDefault(F&& func) : function(func) {}
+
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            return Sombrero::Linq::LastOrDefault(std::forward<T>(range));
+            return Sombrero::Linq::LastOrDefault(std::forward<T>(range), function);
         }
     };
 
+
+    template<class F>
     struct Any {
-        explicit Any() {}
+        F function;
+        explicit Any(F&& func) : function(func) {}
+
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            return Sombrero::Linq::Any(std::forward<T>(range));
+            return Sombrero::Linq::Any(std::forward<T>(range), function);
         }
     };
 
+    template<class F>
     struct All {
-        explicit All() {}
+        F function;
+        explicit All(F&& func) : function(func) {}
+
         template<class T>
         requires (Sombrero::Linq::range<T>)
         auto transform(T&& range) {
-            return Sombrero::Linq::All(std::forward<T>(range));
+            return Sombrero::Linq::All(std::forward<T>(range), function);
         }
     };
 

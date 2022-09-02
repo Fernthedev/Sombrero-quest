@@ -118,6 +118,9 @@ namespace Sombrero::Linq {
         auto end() const {
             return WhereIterator(*this, last);
         }
+
+        using iterator = WhereIterator;
+
         template<class R>
         requires (range<R>)
         explicit WhereIterable(R&& range, F&& func) : start(range.begin()), last(range.end()), function(func) {}
@@ -170,6 +173,9 @@ namespace Sombrero::Linq {
         auto end() const {
             return SelectIterator(*this, last);
         }
+
+        using iterator = SelectIterator;
+
         template<class Range>
         requires (range<Range>)
         explicit SelectIterable(Range&& range, F&& func) : start(range.begin()), last(range.end()), function(func) {}
@@ -216,7 +222,7 @@ namespace Sombrero::Linq {
     auto Select(T const& list, F&& fn) {
         return SelectIterable(list, fn);
     }
-    
+
     template<class T>
     requires (range<T>)
     auto Reverse(T&& list) {
@@ -300,25 +306,31 @@ namespace Sombrero::Linq {
         return lst;
     }
 
-    template<Iterable T, typename V = typename T::value_type, typename F>
-    std::optional<std::reference_wrapper<V>> First(T& list, F&& fn) {
-        for (auto& v : list)
-            if (fn(v)) return std::ref(v);
+    template<range T, typename F>
+    auto First(T const& list, F&& fn) {
+        using ItemT = std::remove_reference_t<decltype(*list.begin())>;
 
-        return std::nullopt;
+        for (auto v : list)
+            if (fn(v)) return std::make_optional<ItemT>(v);
+
+        return (std::optional<ItemT>) std::nullopt;
     }
 
-    template<Iterable T, typename V = typename T::value_type, typename F>
-    std::optional<std::reference_wrapper<const V>> First(T const& list, F&& fn) {
-        for (auto& v : list)
-            if (fn(v)) return std::cref(v);
+    template<range T, typename F>
+    auto First(T&& list, F&& fn) {
+        using ItemT = std::remove_reference_t<decltype(*list.begin())>;
 
-        return std::nullopt;
+        for (auto const& v : list)
+            if (fn(v)) return std::make_optional<ItemT>(v);
+
+        return (std::optional<ItemT>) std::nullopt;
     }
 
     template<typename... TArgs>
     auto FirstOrDefault(TArgs&&... args) {
-        return First(std::forward<TArgs>(args)...).value_or({});
+        auto opt = First(std::forward<TArgs>(args)...);
+
+        return opt.template value_or<typename decltype(opt)::value_type>({});
     }
 
     auto Last(auto& list, auto&& fn) {
@@ -331,7 +343,9 @@ namespace Sombrero::Linq {
 
     template<typename... TArgs>
     auto LastOrDefault(TArgs&&... args) {
-        return Last(std::forward<TArgs>(args)...).value_or({});
+        auto opt = Last(std::forward<TArgs>(args)...);
+
+        return opt.template value_or<typename decltype(opt)::value_type>({});
     }
 
     template<ConstIterable T, typename F>
