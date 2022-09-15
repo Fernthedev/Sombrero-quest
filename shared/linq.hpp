@@ -91,6 +91,7 @@ namespace Sombrero::Linq {
             using pointer = typename std::iterator_traits<I>::pointer;
             using reference = typename std::iterator_traits<I>::reference;
             using iterator_category = std::forward_iterator_tag;
+            __attribute__((noinline))
             WhereIterator& operator++() {
                 // Move first, then compare.
                 while (++iterator != iterable.last) {
