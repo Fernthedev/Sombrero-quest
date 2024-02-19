@@ -96,6 +96,34 @@ namespace Sombrero {
 			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 		}
 
+        constexpr static FastQuaternion Normalize(UnityEngine::Quaternion const& a)
+		{
+            float num = std::sqrt(FastQuaternion::Dot(q, q));
+            // if close to 0, just return identity
+			bool flag = num < std::numeric_limits<float>::epsilon();
+			if (flag)
+			{
+				return FastQuaternion::identity();
+			}
+
+			return FastQuaternion(q.x / num, q.y / num, q.z / num, q.w / num);
+        }
+
+        constexpr static FastQuaternion Euler(UnityEngine::Vector3 const& a)
+		{
+            FastQuaternion qx(std::cos(a.x / 2), std::sin(a.x / 2), 0, 0);
+            FastQuaternion qy(std::cos(a.y / 2), 0, std::sin(a.y / 2), 0);
+            FastQuaternion qz(std::cos(a.z / 2), 0, 0, std::sin(a.z / 2));
+
+            // Apply rotation order: ZXY
+            FastQuaternion result = qz * qx * qy;
+            return FastQuaternion::Normalize(result);
+		}
+
+        constexpr auto get_normalized() const
+        {
+            return FastQuaternion::Normalize(*this);
+        }
 
         constexpr FastQuaternion operator*(const FastQuaternion &b) const { return QuaternionMultiply(*this, b); }
 
