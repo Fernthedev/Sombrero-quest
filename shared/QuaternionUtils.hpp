@@ -96,7 +96,7 @@ namespace Sombrero {
 			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 		}
 
-        constexpr static FastQuaternion Normalize(UnityEngine::Quaternion const& a)
+        constexpr static FastQuaternion Normalize(UnityEngine::Quaternion const& q)
 		{
             float num = std::sqrt(FastQuaternion::Dot(q, q));
             // if close to 0, just return identity
