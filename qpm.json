@@ -15,9 +15,7 @@
       "id": "beatsaber-hook",
       "versionRange": "*",
       "additionalData": {
-        "extraFiles": [
-          "src/inline-hook"
-        ]
+        "extraFiles": ["src/inline-hook"]
       }
     },
     {
@@ -28,5 +26,9 @@
       }
     }
   ],
-  "additionalData": {}
+  "workspace": {
+    "scripts": {
+      "build": ["pwsh ./build.ps1"]
+    }
+  }
 }
