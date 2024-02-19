@@ -21,7 +21,7 @@
       }
     },
     {
-      "id": "codegen",
+      "id": "bs-cordl",
       "versionRange": "*",
       "additionalData": {
         "private": true
