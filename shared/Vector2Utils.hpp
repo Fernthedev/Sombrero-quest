@@ -153,11 +153,11 @@ namespace Sombrero {
         }
 
 
-        constexpr bool operator ==(const UnityEngine::Vector2& lhs) {
+        constexpr bool operator ==(const UnityEngine::Vector2& lhs) const {
             return lhs.x == x && lhs.y == y;
         }
 
-        constexpr bool operator !=(const UnityEngine::Vector2& lhs) {
+        constexpr bool operator !=(const UnityEngine::Vector2& lhs) const {
             return lhs.x != x || lhs.y != y;
         }
 

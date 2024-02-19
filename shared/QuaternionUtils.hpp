@@ -107,11 +107,11 @@ namespace Sombrero {
 
 
 
-        constexpr bool operator ==(const UnityEngine::Quaternion& lhs) {
+        constexpr bool operator ==(const UnityEngine::Quaternion& lhs) const {
             return lhs.x == x && lhs.y == y && lhs.z == z && lhs.w == w;
         }
 
-        constexpr bool operator !=(const UnityEngine::Quaternion& lhs) {
+        constexpr bool operator !=(const UnityEngine::Quaternion& lhs) const {
             return lhs.x != x || lhs.y != y || lhs.z != z || lhs.w != w;
         }
 

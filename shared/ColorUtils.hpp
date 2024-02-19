@@ -343,11 +343,11 @@ namespace Sombrero {
 
 
 
-        constexpr bool operator ==(const UnityEngine::Color& lhs) {
+        constexpr bool operator ==(const UnityEngine::Color& lhs) const {
             return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
         }
 
-        constexpr bool operator !=(const UnityEngine::Color& lhs) {
+        constexpr bool operator !=(const UnityEngine::Color& lhs) const {
             return lhs.r != r || lhs.g != g || lhs.b != b || lhs.a != a;
         }
 
