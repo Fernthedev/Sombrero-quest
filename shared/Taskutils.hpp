@@ -38,7 +38,7 @@ template <typename T> struct Generator {
     std::future<T> async_future;
 
     // TODO: Allow any task to work? currently only allows Task<T>
-    std::optional<Task<T>*> il2cpp_task;
+    std::optional<Task<T> *> il2cpp_task;
     std::exception_ptr m_exception;
 
     auto get_return_object() {
@@ -55,8 +55,7 @@ template <typename T> struct Generator {
       return std::suspend_always{};
     };
 
-    template <typename U>
-    std::suspend_never yield_value(U &&value) = delete;
+    template <typename U> std::suspend_never yield_value(U &&value) = delete;
 
     // handle await
     auto await_transform(std::future<T> future) {
@@ -65,7 +64,7 @@ template <typename T> struct Generator {
       return std::suspend_always{};
     }
 
-    // TODO: Somehow make this work. This is desirable 
+    // TODO: Somehow make this work. This is desirable
     auto await_transform(Generator<T> generator) = delete;
 
     // handle il2cpp task
@@ -79,13 +78,13 @@ template <typename T> struct Generator {
     // return true if the awaited future
     // is done
     auto await_ready() const {
-     if (il2cpp_task.has_value()) {
-       return il2cpp_task.value()->IsCompleted;
-     }
+      if (il2cpp_task.has_value()) {
+        return il2cpp_task.value()->IsCompleted;
+      }
 
-     return async_future.valid() &&
-              async_future.wait_for(std::chrono::seconds(0)) ==
-                  std::future_status::ready;
+      return async_future.valid() &&
+             async_future.wait_for(std::chrono::seconds(0)) ==
+                 std::future_status::ready;
     }
     auto await_resume() { return async_future.get(); }
     void return_void() {}
@@ -96,7 +95,7 @@ template <typename T> struct Generator {
         // TODO: Grab exception
         il2cpp_task.value()->Wait();
       }
-      
+
       if (m_exception) {
         std::rethrow_exception(m_exception);
       }
@@ -109,14 +108,19 @@ template <typename T> struct Generator {
   }
 
   // not sure if this even works
-  T value() const { return handle.promise().current_value; }
+  std::optional<T> value_if_done() const {
+    if (!handle.promise().async_future.valid())
+      return std::nullopt;
+
+    return handle.promise().async_future.get();
+  }
 
   handle_type handle;
 };
 } // namespace detail
 
 template <typename Ret, typename T>
-static Task<Ret>* task_awaitable(T &&func, CancellationToken &&cancelToken) {
+static Task<Ret> *task_awaitable(T &&func, CancellationToken &&cancelToken) {
   using namespace std::chrono_literals;
   auto task = Task<Ret>::New_ctor();
 
@@ -124,20 +128,23 @@ static Task<Ret>* task_awaitable(T &&func, CancellationToken &&cancelToken) {
   auto fut = il2cpp_utils::il2cpp_async(
       [task](T &&func, CancellationToken &&cancelToken) {
         // make a generator
-        detail::Generator<Ret> generator(std::forward<T>(func));
+        detail::Generator<Ret> generator(func());
 
         // while there is work to do, continue
         while (!cancelToken.IsCancellationRequested && generator.next()) {
+          // suspended
           // yield control back to the async runtime
-          std::this_thread::yield();
+          if (!generator.handle.promise().await_ready()) {
+            std::this_thread::yield();
+          }
         }
 
         // TODO: Move this to the task exception
 
-        generator.handle.rethrow_if_exception();
+        generator.handle.promise().rethrow_if_exception();
         // if cancellation wasn't requested, set result, else set canceled
         if (!cancelToken.IsCancellationRequested) {
-          task->TrySetResult(generator.value());
+          task->TrySetResult(generator.value_if_done().value());
         } else {
           task->TrySetCanceled(cancelToken);
         }

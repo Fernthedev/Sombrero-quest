@@ -2,12 +2,12 @@
 
 #include "Taskutils.hpp"
 
-TaskHelper::detail::Generator<void> bar() {
+TaskHelper::detail::Generator<int> bar() {
   co_return;
 }
 
-TaskHelper::detail::Generator<void> awaitableTask() {
-  TaskHelper::Task<void>* randomTask = nullptr;
+TaskHelper::detail::Generator<int> awaitableTask() {
+  TaskHelper::Task<int>* randomTask = nullptr;
   co_await randomTask;
   // task was done, no-op
   co_await randomTask;
@@ -28,5 +28,5 @@ TaskHelper::detail::Generator<void> awaitableTask() {
 }
 
 int main() {
-  
+  TaskHelper::task_awaitable<int>(&awaitableTask, TaskHelper::CancellationToken());
 }
