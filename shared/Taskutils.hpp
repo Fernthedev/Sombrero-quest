@@ -1,9 +1,11 @@
 #pragma once
 
 #include "System/Threading/Tasks/Task_1.hpp"
+#include "System/Threading/Tasks/TaskStatus.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include <chrono>
 #include <cstddef>
+#include <optional>
 #include <thread>
 
 #include <coroutine>
@@ -14,6 +16,7 @@ namespace TaskHelper {
 template <typename T> using Task = System::Threading::Tasks::Task_1<T>;
 
 using System::Threading::CancellationToken;
+using System::Threading::Tasks::TaskStatus;
 
 namespace detail {
 
@@ -109,10 +112,14 @@ template <typename T> struct Generator {
 
   // not sure if this even works
   std::optional<T> value_if_done() const {
-    if (!handle.promise().async_future.valid())
-      return std::nullopt;
+    if (handle.promise().il2cpp_task.has_value() && handle.promise().il2cpp_task.value()->Status ==
+        TaskStatus::RanToCompletion)
+      return handle.promise().il2cpp_task.value()->Result;
 
-    return handle.promise().async_future.get();
+    if (handle.promise().async_future.valid())
+      return handle.promise().async_future.get();
+
+    return std::nullopt;
   }
 
   handle_type handle;
