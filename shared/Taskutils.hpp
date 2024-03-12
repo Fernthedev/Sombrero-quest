@@ -127,10 +127,9 @@ static Task<Ret>* task_awaitable(T &&func, CancellationToken &&cancelToken) {
         detail::Generator<Ret> generator(std::forward<T>(func));
 
         // while there is work to do, continue
-        while (generator.next()) {
-          // quit
-          if (cancelToken.IsCancellationRequested) break;
-          Task<T>::Yield();
+        while (!cancelToken.IsCancellationRequested && generator.next()) {
+          // yield control back to the async runtime
+          std::this_thread::yield();
         }
 
         // TODO: Move this to the task exception
