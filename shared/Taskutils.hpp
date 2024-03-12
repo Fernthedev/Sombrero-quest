@@ -3,6 +3,7 @@
 #include "System/Threading/Tasks/Task_1.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include <chrono>
+#include <cstddef>
 #include <thread>
 
 #include <coroutine>
@@ -30,9 +31,16 @@ template <typename T> struct Generator {
   }
 
   struct promise_type {
+    // store il2cpp_task separately to poll
+    // instead of making a new thread only to call future->set_value()
+    // I would prefer making my own std::future or something else entirely
+
     std::future<T> async_future;
-    std::optional<Task<T>> il2cpp_task;
+
+    // TODO: Allow any task to work? currently only allows Task<T>
+    std::optional<Task<T>*> il2cpp_task;
     std::exception_ptr m_exception;
+
     auto get_return_object() {
       return Generator{handle_type::from_promise(*this)};
     }
@@ -42,7 +50,11 @@ template <typename T> struct Generator {
       m_exception = std::current_exception();
     }
 
-    // Don't allow any use of 'co_await' inside the generator coroutine.
+    // Yield control and return if cancellation
+    std::suspend_always yield_value(std::nullptr_t) {
+      return std::suspend_always{};
+    };
+
     template <typename U>
     std::suspend_never yield_value(U &&value) = delete;
 
@@ -53,6 +65,10 @@ template <typename T> struct Generator {
       return std::suspend_always{};
     }
 
+    // TODO: Somehow make this work. This is desirable 
+    auto await_transform(Generator<T> generator) = delete;
+
+    // handle il2cpp task
     auto await_transform(Task<T> *task) {
       il2cpp_task.emplace(task);
       async_future = {};
@@ -60,6 +76,8 @@ template <typename T> struct Generator {
       return std::suspend_always{};
     }
 
+    // return true if the awaited future
+    // is done
     auto await_ready() const {
      if (il2cpp_task.has_value()) {
        return il2cpp_task.value()->IsCompleted;
@@ -90,6 +108,7 @@ template <typename T> struct Generator {
     return !handle.done();
   }
 
+  // not sure if this even works
   T value() const { return handle.promise().current_value; }
 
   handle_type handle;
@@ -104,7 +123,10 @@ static Task<Ret>* task_awaitable(T &&func, CancellationToken &&cancelToken) {
   // start func as an std::future
   auto fut = il2cpp_utils::il2cpp_async(
       [task](T &&func, CancellationToken &&cancelToken) {
+        // make a generator
         detail::Generator<Ret> generator(std::forward<T>(func));
+
+        // while there is work to do, continue
         while (generator.next()) {
           // quit
           if (cancelToken.IsCancellationRequested) break;
