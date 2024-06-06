@@ -77,4 +77,9 @@ namespace Sombrero {
             ? detail::sqrt(x, x, 0)
             : std::numeric_limits<float>::quiet_NaN();
     }
+
+    // Convert degrees to radians
+    constexpr double degreesToRadians(double degrees) {
+      return degrees * M_PI / 180.0;
+    }
 }
