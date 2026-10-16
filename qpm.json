@@ -4,7 +4,7 @@
   "info": {
     "name": "sombrero",
     "id": "sombrero",
-    "version": "0.0.1",
+    "version": "0.1.44",
     "url": "https://github.com/Fernthedev/sombrero-quest",
     "additionalData": {
       "headersOnly": true
@@ -13,7 +13,7 @@
   "dependencies": [
     {
       "id": "beatsaber-hook",
-      "versionRange": "*",
+      "versionRange": "^9.1.1",
       "additionalData": {}
     },
     {
@@ -26,7 +26,11 @@
   ],
   "workspace": {
     "scripts": {
-      "build": ["pwsh ./build.ps1"]
-    }
-  }
+      "build": [
+        "pwsh ./build.ps1"
+      ]
+    },
+    "ndk": "^29.0.14206865"
+  },
+  "version": "0.4.0"
 }

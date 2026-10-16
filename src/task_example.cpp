@@ -27,6 +27,6 @@ TaskHelper::detail::Generator<int> awaitableTask() {
   co_return;
 }
 
-int main() {
+int task_example() {
   TaskHelper::task_awaitable<int>(&awaitableTask, TaskHelper::CancellationToken());
 }

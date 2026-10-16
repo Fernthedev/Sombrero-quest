@@ -1,12 +1,17 @@
 #pragma once
+#include <ranges>
 
 #include <concepts>
 #include <type_traits>
 #include "Concepts.hpp"
-#include "beatsaber-hook/shared/utils/typedefs-array.hpp"
+#include "beatsaber-hook/shared/arrayw.hpp"
+#include "beatsaber-hook/shared/listw.hpp"
+#include "beatsaber-hook/shared/members.hpp"
 #include <optional>
 #include <iterator>
 #include <functional>
+#include <utility>
+#include <vector>
 
 namespace Sombrero::Linq {
 
@@ -65,128 +70,6 @@ namespace Sombrero::Linq {
         }
     }
 
-    template<class I, class F>
-    requires (input_iterator<I>)
-    struct WhereIterable {
-        private:
-        I start;
-        I last;
-        using T = decltype(*start);
-        F function;
-        public:
-        struct WhereIterator {
-            explicit WhereIterator(WhereIterable const& v, I iter) : iterable(v), iterator(iter) {
-                // Start by finding the first match
-                while (iterator != iterable.last && !iterable.function(*iterator)) {
-                    ++iterator;
-                }
-                // If we walk all the way to the end, iterator == iterable.last
-            }
-            T& operator*() const {
-                return *iterator;
-            }
-            // ptrdiff_t can't be used for this type, since we can't know the distance.
-            using difference_type = std::ptrdiff_t;
-            using value_type = typename std::iterator_traits<I>::value_type;
-            using pointer = typename std::iterator_traits<I>::pointer;
-            using reference = typename std::iterator_traits<I>::reference;
-            using iterator_category = std::forward_iterator_tag;
-            __attribute__((noinline))
-            WhereIterator& operator++() {
-                // Move first, then compare.
-                while (++iterator != iterable.last) {
-                    if (iterable.function(*iterator)) {
-                        break;
-                    }
-                }
-                return *this;
-            }
-            WhereIterator operator++(int) {
-                WhereIterator ret(iterable, iterator);
-                this->operator++();
-                return ret;
-            }
-            bool operator==(WhereIterator const& other) const {
-                return iterator == other.iterator;
-            }
-            private:
-            WhereIterable const& iterable;
-            I iterator;
-        };
-        auto begin() const {
-            return WhereIterator(*this, start);
-        }
-        auto end() const {
-            return WhereIterator(*this, last);
-        }
-
-        using iterator = WhereIterator;
-
-        template<class R>
-        requires (range<R>)
-        explicit WhereIterable(R&& range, F&& func) : start(range.begin()), last(range.end()), function(func) {}
-    };
-
-    template<class R, class F>
-    requires (range<R>)
-    WhereIterable(R&& r, F&&) -> WhereIterable<decltype(r.begin()), F>;
-
-    template<class I, class F, class R>
-    requires (input_iterator<I>)
-    struct SelectIterable {
-        private:
-        I start;
-        I last;
-        F function;
-        public:
-        struct SelectIterator {
-            explicit SelectIterator(SelectIterable const& v, I iter) : iterable(v), iterator(iter) {}
-            // TODO: Add support for function being invoked with index
-            // TODO: Do we want to evaluate on * or have * always be post-evaluation?
-            // Unclear which makes more sense.
-            R operator*() const {
-                return iterable.function(*iterator);
-            }
-            // Actually has value for this type
-            // TODO: Create - operators
-            using difference_type = std::ptrdiff_t;
-            using value_type = R;
-            using pointer = void;
-            using reference = R&;
-            using iterator_category = std::forward_iterator_tag;
-            SelectIterator& operator++() {
-                ++iterator;
-                return *this;
-            }
-            SelectIterator operator++(int) {
-                return SelectIterator(iterable, iterator++);
-            }
-            bool operator==(SelectIterator const& other) const {
-                return iterator == other.iterator;
-            }
-            private:
-            SelectIterable const& iterable;
-            I iterator;
-        };
-        auto begin() const {
-            return SelectIterator(*this, start);
-        }
-        auto end() const {
-            return SelectIterator(*this, last);
-        }
-
-        using iterator = SelectIterator;
-
-        template<class Range>
-        requires (range<Range>)
-        explicit SelectIterable(Range&& range, F&& func) : start(range.begin()), last(range.end()), function(func) {}
-    };
-
-    template<class Range, class F>
-    requires (range<Range>)
-    SelectIterable(Range&& r, F&& func) -> SelectIterable<decltype(r.begin()), F, decltype(func(*r.begin()))>;
-
-
     template<typename T, typename Iterator = typename T::iterator>
     concept ConstIterable = requires(T const& t, int length, Iterator it) {
         {T() -> SomberoConvertible<T>};
@@ -214,20 +97,20 @@ namespace Sombrero::Linq {
      */
     template<class T, typename F>
     requires (range<T>)
-    auto Where(T const& list, F&& fn) {
-        return WhereIterable(list, fn);
+    auto Where(T&& list, F&& fn) {
+        return std::views::filter(std::forward<T>(list), std::forward<F>(fn));
     }
 
     template<class T, typename F>
     requires (range<T>)
-    auto Select(T const& list, F&& fn) {
-        return SelectIterable(list, fn);
+    auto Select(T&& list, F&& fn) {
+        return std::views::transform(std::forward<T>(list), std::forward<F>(fn));
     }
 
     template<class T>
     requires (range<T>)
     auto Reverse(T&& list) {
-        return std::span(std::rbegin(list), std::rend(list));
+        return std::views::reverse(std::forward<T>(list));
     }
 
     template<class T>
@@ -239,7 +122,7 @@ namespace Sombrero::Linq {
         // If we can compute the distance (ex, we can easily tell how large our collection is)
         // Then we should do that
         // Otherwise, we kinda have to make a vector then shrink it and be good to go
-        using ItemT = std::remove_reference_t<decltype(*range.begin())>;
+        using ItemT = std::ranges::range_value_t<T>;
         if constexpr (can_get_size<T>) {
             ArrayW<ItemT> arr(get_size<T>(std::forward<T>(range)));
             std::copy(range.begin(), range.end(), arr.begin());
@@ -257,21 +140,7 @@ namespace Sombrero::Linq {
     template<class T>
     requires (range<T>)
     auto Count(T&& range) {
-        // TODO: Improve this using better concepts
-        // We can block copy if we satisfy contiguous iterator
-        // So, this is actually kind of interesting.
-        // If we can compute the distance (ex, we can easily tell how large our collection is)
-        // Then we should do that
-        // Otherwise, we kinda have to make a vector then shrink it and be good to go
-        using ItemT = std::remove_reference_t<decltype(*range.begin())>;
-        if constexpr (can_get_size<T>) {
-            return get_size<T>(std::forward<T>(range));
-        }
-        // We don't know how to get the size, lets copy into a buffer
-        // Then copy to our array.
-        // TODO: We use a vector. vector<bool> will break.
-        std::vector<ItemT> vec(range.begin(), range.end());
-        return vec.size();
+        return static_cast<il2cpp_array_size_t>(std::ranges::distance(range));
     }
 
     template<class T>
@@ -283,27 +152,15 @@ namespace Sombrero::Linq {
     template<class T>
     requires (range<T>)
     auto ToList(T&& range) {
-        using ItemT = std::remove_reference_t<decltype(*range.begin())>;
-        if constexpr (can_get_size<T>) {
-            auto lst = il2cpp_utils::NewSpecific<List<ItemT>*>(get_size<T>(std::forward<T>(range)));
-            // Now that we have a list that is big enough, lets copy to it
-            #ifdef HAS_CODEGEN
-            std::copy(range.begin(), range.end(), lst->items.begin());
-            #else
-            std::copy(range.begin(), range.end(), &lst->items->values[0]);
-            #endif
-            return lst;
+        using ItemT = std::ranges::range_value_t<T>;
+        auto lst = i2c::new_ctor<System::Collections::Generic::List_1<ItemT>*>();
+        for (auto&& value : range) {
+#ifdef HAS_CODEGEN
+            lst->Add(value);
+#else
+            i2c::run_method<void>(lst, "Add", static_cast<ItemT>(value));
+#endif
         }
-        // We can't get the size, so we have to copy into some buffer and then copy to the list
-        // TODO: We use a vector. vector<bool> will break.
-        std::vector<ItemT> vec(range.begin(), range.end());
-        auto lst = il2cpp_utils::NewSpecific<List<ItemT>*>(vec.size());
-        // Now that we have a list that is big enough, lets copy to it
-        #ifdef HAS_CODEGEN
-        std::copy(vec.begin(), vec.end(), lst->items.begin());
-        #else
-        std::copy(vec.begin(), vec.end(), &lst->items->values[0]);
-        #endif
         return lst;
     }
 
@@ -335,11 +192,11 @@ namespace Sombrero::Linq {
     }
 
     auto Last(auto& list, auto&& fn) {
-        return First(std::span(std::rbegin(list), std::rend(list)), fn);
+        return First(std::ranges::subrange(std::rbegin(list), std::rend(list)), fn);
     }
 
     auto Last(auto const& list, auto&& fn) {
-        return First(std::span(std::rbegin(list), std::rend(list)), fn);
+        return First(std::ranges::subrange(std::rbegin(list), std::rend(list)), fn);
     }
 
     template<typename... TArgs>
@@ -349,8 +206,8 @@ namespace Sombrero::Linq {
         return opt.template value_or<typename decltype(opt)::value_type>({});
     }
 
-    template<ConstIterable T, typename F>
-    bool Any(T const& list, F&& fn) {
+    template<range T, typename F>
+    bool Any(T&& list, F&& fn) {
         for (auto it = list.begin(); it != list.end(); it++) {
             if (fn(*it)) return true;
         }
@@ -358,8 +215,8 @@ namespace Sombrero::Linq {
         return false;
     }
 
-    template<ConstIterable T, typename F>
-    bool All(T const& list, F&& fn) {
+    template<range T, typename F>
+    bool All(T&& list, F&& fn) {
         for (auto it = list.begin(); it != list.end(); it++) {
             if (!fn(*it)) return false;
         }

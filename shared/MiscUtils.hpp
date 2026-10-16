@@ -5,6 +5,8 @@
 #include <concepts>
 #include <cmath>
 #include <algorithm>
+#include <functional>
+#include <type_traits>
 #include "Concepts.hpp"
 
 #ifdef SOMBRERO_DEBUG
@@ -13,16 +15,21 @@
 #warning CODEGEN DETECTED
 #else
 #warning NO CODEGEN DETECTED
-#include "beatsaber-hook/shared/utils/il2cpp-type-check.hpp"
+#include "beatsaber-hook/shared/types.hpp"
 #endif
 
 #endif
 
 namespace Sombrero {
+
+    // Opt-in policies for unordered keys. Unity-style approximate operator==
+    // is not an equivalence relation and cannot support a default std::hash.
+    template<class T> struct ExactHash;
+    template<class T> struct ExactEqual;
     
     constexpr float Clamp01(float value)
     {
-        return value < 0.0f ? 0.0f : (value < 1.0f ? value : 1.0f);
+        return value < 0.0f ? 0.0f : (value > 1.0f ? 1.0f : value);
     }
 
     template<Sombrero::Lerpable T>
@@ -39,43 +46,56 @@ namespace Sombrero {
     
     inline static float PingPong(float t, float length)
     {
-        float graph = std::fmod(t, length * 2);
-        if (graph > length) graph = ((2 * length) - graph);
-        // should yield
-        //length_______________
-        //                 /\      /\      /
-        //                /  \    /  \    /
-        //               /    \  /    \  /
-        //zero_________ /      \/      \/
-        return graph;
+        const float period = length * 2.0f;
+        float repeated = t - std::floor(t / period) * period;
+        repeated = repeated < 0.0f ? 0.0f : (repeated > period ? period : repeated);
+        return length - std::abs(repeated - length);
     }
 
     // Credit to sc2ad for making the sqrt and pow constexpr
     namespace detail {
-        constexpr float sqrt(float x, float curr, float prev) {
-            return curr == prev
-                ? curr
-                : sqrt(x, 0.5 * (curr + x / curr), curr);
+        constexpr float sqrt(float x) {
+            // Constant evaluation only; runtime uses the platform square root.
+            double curr = x >= 1.0f ? x : 1.0;
+            for (;;) {
+                const double next = 0.5 * (curr + double(x) / curr);
+                if (next >= curr) return static_cast<float>(curr);
+                curr = next;
+            }
+        }
+
+        // Hash keys need an equivalence relation even for NaN components.
+        constexpr bool FloatKeyEqual(float a, float b) {
+            return a == b || (a != a && b != b);
+        }
+
+        inline size_t FloatKeyHash(float value) noexcept {
+            return std::hash<float>{}(value == value ? value : std::numeric_limits<float>::quiet_NaN());
         }
     }
 
     constexpr float power(float x, int p) 
     {
-        if (p == 0) {
-            return 1;
-        } else if (p == 1) {
-            return x;
+        // Unsigned subtraction also handles INT_MIN without signed overflow.
+        unsigned int exponent = p < 0 ? 0u - static_cast<unsigned int>(p) : static_cast<unsigned int>(p);
+        // Invert first so a representable negative power does not become zero
+        // merely because the corresponding positive power overflows.
+        double factor = p < 0 ? 1.0 / static_cast<double>(x) : static_cast<double>(x);
+        double result = 1.0;
+        while (exponent != 0) {
+            if ((exponent & 1u) != 0) result *= factor;
+            exponent >>= 1;
+            if (exponent != 0) factor *= factor;
         }
-        // if p > 0, return x * pow x, p
-        // else divide x by pow x, -p
-        return p > 0 ? x * power(x, p - 1) : 1 / power(x, -p);
+        return static_cast<float>(result);
     }
 
     constexpr float sqroot(float x) 
     {
-        return x >= 0 && x < std::numeric_limits<float>::infinity()
-            ? detail::sqrt(x, x, 0)
-            : std::numeric_limits<float>::quiet_NaN();
+        if (!std::is_constant_evaluated())
+            return static_cast<float>(std::sqrt(static_cast<double>(x)));
+        if (x == 0.0f || x == std::numeric_limits<float>::infinity()) return x;
+        return x > 0.0f ? detail::sqrt(x) : std::numeric_limits<float>::quiet_NaN();
     }
 
     // Convert degrees to radians

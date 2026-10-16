@@ -9,21 +9,31 @@ namespace Sombrero::Linq::Functional {
     template<class F>
     struct Where {
         F function;
-        explicit Where(F&& func) : function(func) {}
+        explicit Where(F func) : function(std::move(func)) {}
         template<class T>
         requires (Sombrero::Linq::range<T>)
-        auto transform(T&& range) {
-            return Sombrero::Linq::WhereIterable<decltype(range.begin()), F>(range, std::forward<F>(function));
+        auto transform(T&& range) & {
+            return Sombrero::Linq::Where(std::forward<T>(range), function);
+        }
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) && {
+            return Sombrero::Linq::Where(std::forward<T>(range), std::move(function));
         }
     };
     template<class F>
     struct Select {
         F function;
-        explicit Select(F&& func) : function(func) {}
+        explicit Select(F func) : function(std::move(func)) {}
         template<class T>
         requires (Sombrero::Linq::range<T>)
-        auto transform(T&& range) {
-            return Sombrero::Linq::SelectIterable<decltype(range.begin()), F, decltype(function(*range.begin()))>(range, std::forward<F>(function));
+        auto transform(T&& range) & {
+            return Sombrero::Linq::Select(std::forward<T>(range), function);
+        }
+        template<class T>
+        requires (Sombrero::Linq::range<T>)
+        auto transform(T&& range) && {
+            return Sombrero::Linq::Select(std::forward<T>(range), std::move(function));
         }
     };
 
@@ -144,6 +154,6 @@ namespace Sombrero::Linq::Functional {
     template<class T, class R>
     requires (Sombrero::Linq::range<T>)
     auto operator|(T&& inp, R&& rhs) {
-        return rhs.transform(inp);
+        return std::forward<R>(rhs).transform(std::forward<T>(inp));
     }
 }
