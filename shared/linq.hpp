@@ -7,6 +7,7 @@
 #include "beatsaber-hook/shared/arrayw.hpp"
 #include "beatsaber-hook/shared/listw.hpp"
 #include "beatsaber-hook/shared/members.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include <optional>
 #include <iterator>
 #include <functional>
@@ -113,28 +114,63 @@ namespace Sombrero::Linq {
         return std::views::reverse(std::forward<T>(list));
     }
 
+    namespace detail {
+        template<class ItemT>
+        bool needs_managed_buffer() {
+            if constexpr (i2c::type_check::ref_type<ItemT>) {
+                return true;
+            } else if constexpr (std::is_arithmetic_v<ItemT> || std::is_enum_v<ItemT>) {
+                return false;
+            } else {
+                // Value types can contain managed references too. The runtime
+                // query initializes field layout; cache its result per type.
+                static const bool hasReferences = [] {
+                    i2c::functions::initialize();
+                    return i2c::functions::class_has_references(i2c::class_of<ItemT>());
+                }();
+                return hasReferences;
+            }
+        }
+    }
+
     template<class T>
     requires (range<T>)
     auto ToArray(T&& range) {
-        // TODO: Improve this using better concepts
-        // We can block copy if we satisfy contiguous iterator
-        // So, this is actually kind of interesting.
-        // If we can compute the distance (ex, we can easily tell how large our collection is)
-        // Then we should do that
-        // Otherwise, we kinda have to make a vector then shrink it and be good to go
         using ItemT = std::ranges::range_value_t<T>;
         if constexpr (can_get_size<T>) {
             ArrayW<ItemT> arr(get_size<T>(std::forward<T>(range)));
+            // Projections can allocate or trigger GC between element writes.
+            safe_ptr<ArrayW<ItemT>, false> outputRoot(arr);
             std::copy(range.begin(), range.end(), arr.begin());
             return arr;
+        } else {
+            if (!detail::needs_managed_buffer<ItemT>()) {
+                std::vector<ItemT> buffer;
+                for (auto&& value : range) {
+                    buffer.emplace_back(std::forward<decltype(value)>(value));
+                }
+                ArrayW<ItemT> arr(buffer.size());
+                std::copy(buffer.begin(), buffer.end(), arr.begin());
+                return arr;
+            }
+            // A native buffer is not scanned by managed GC. Keep previously
+            // produced values in a rooted managed list while evaluating the
+            // rest of a single-pass/unknown-size range, then copy in managed code.
+            using ListT = System::Collections::Generic::List_1<ItemT>;
+            safe_ptr<ListT*, false> buffer(i2c::new_ctor<ListT*>());
+            for (auto&& value : range) {
+#ifdef HAS_CODEGEN
+                buffer->Add(value);
+#else
+                i2c::run_method<void>(buffer.ptr(), "Add", static_cast<ItemT>(value));
+#endif
+            }
+#ifdef HAS_CODEGEN
+            return buffer->ToArray();
+#else
+            return i2c::run_method<ArrayW<ItemT>>(buffer.ptr(), "ToArray");
+#endif
         }
-        // We don't know how to get the size, lets copy into a buffer
-        // Then copy to our array.
-        // TODO: We use a vector. vector<bool> will break.
-        std::vector<ItemT> vec(range.begin(), range.end());
-        ArrayW<ItemT> arr(vec.size());
-        std::copy(vec.begin(), vec.end(), arr.begin());
-        return arr;
     }
 
     template<class T>
