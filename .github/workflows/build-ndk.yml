@@ -11,13 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         name: Checkout
         with:
           submodules: true
           lfs: true
-
-      - uses: seanmiddleditch/gha-setup-ninja@v5
 
       - name: Setup QPM
         uses: Fernthedev/qpm-action@v1
