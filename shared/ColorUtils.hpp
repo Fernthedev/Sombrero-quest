@@ -4,8 +4,9 @@
 #include "Concepts.hpp"
 
 #include <utility>
+#include <stdexcept>
 
-#include "beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/config.hpp"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Color.hpp"
 #endif
@@ -21,7 +22,8 @@ namespace UnityEngine {
     struct Color {
         float r, g, b, a;
 
-        constexpr Color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : r(r), g(g), b(b), a(a) {}
+        constexpr Color() : r(0), g(0), b(0), a(0) {}
+        constexpr Color(float r, float g = 0.0f, float b = 0.0f, float a = 1.0f) : r(r), g(g), b(b), a(a) {}
     };
 }
 #endif
@@ -37,12 +39,18 @@ namespace Sombrero {
 
     inline static float GammaToLinearSpace(float gamma)
     {
+        // Unity's scalar transfer curve includes a linear toe and an HDR tail.
+        if (gamma <= 0.04045f) return gamma / 12.92f;
+        if (gamma < 1.0f) return std::pow((gamma + 0.055f) / 1.055f, 2.4f);
         return std::pow(gamma, 2.2f);
     }
 
     inline static float LinearToGammaSpace(float linear)
     {
-        return std::pow(linear, 1.0f / 2.2f);
+        if (linear <= 0.0f) return 0.0f;
+        if (linear <= 0.0031308f) return linear * 12.92f;
+        if (linear < 1.0f) return 1.055f * std::pow(linear, 0.4166667f) - 0.055f;
+        return std::pow(linear, 0.4545454545454545f);
     }
 
     inline static UnityEngine::Color ColorLinear(UnityEngine::Color const &a)
@@ -212,7 +220,7 @@ namespace Sombrero {
         
 #ifdef USE_SOMBRERO_IMPLICIT_CONVERSIONS
         template<Sombrero::Float T>
-        constexpr FastColor(const T& vector) : Color(vector.x, vector.y, vector.z, vector.w) {}
+        constexpr FastColor(const T& value) : FastColor(static_cast<float>(value)) {}
 
         template<Sombrero::Has4D T>
         constexpr FastColor(const T& vector) : Color(vector.x, vector.y, vector.z, vector.w) {}
@@ -229,7 +237,8 @@ namespace Sombrero {
         template<Sombrero::HasRGBA T>
         constexpr FastColor(const T& color) : Color(color.r, color.g, color.b, color.a) {}
 #endif
-        constexpr FastColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : Color(r, g, b, a) {}
+        constexpr FastColor() : Color(0.0f, 0.0f, 0.0f, 0.0f) {}
+        constexpr FastColor(float r, float g = 0.0f, float b = 0.0f, float a = 1.0f) : Color(r, g, b, a) {}
 
         // there are more colors here than unity normally has, sucks to be unity I guess lul
         // colors added by RedBrumbler do not have a //unity comment
@@ -344,15 +353,47 @@ namespace Sombrero {
 
 
         constexpr bool operator ==(const UnityEngine::Color& lhs) const {
-            return lhs.r == r && lhs.g == g && lhs.b == b && lhs.a == a;
+            const float dr = r - lhs.r, dg = g - lhs.g, db = b - lhs.b, da = a - lhs.a;
+            constexpr float epsilon = 0.00001f;
+            return dr * dr + dg * dg + db * db + da * da < epsilon * epsilon;
         }
 
         constexpr bool operator !=(const UnityEngine::Color& lhs) const {
-            return lhs.r != r || lhs.g != g || lhs.b != b || lhs.a != a;
+            return !(*this == lhs);
         }
 
+        constexpr bool Equals(const UnityEngine::Color& rhs) const {
+            return detail::FloatKeyEqual(r, rhs.r) && detail::FloatKeyEqual(g, rhs.g)
+                && detail::FloatKeyEqual(b, rhs.b) && detail::FloatKeyEqual(a, rhs.a);
+        }
+
+#ifdef HAS_CODEGEN
+        bool Equals(::System::Object* rhs) const {
+            auto* object = reinterpret_cast<Il2CppObject*>(rhs);
+            return object && object->klass == ::i2c::class_of<UnityEngine::Color>()
+                && Equals(::i2c::from_object<UnityEngine::Color, true>(object));
+        }
+        constexpr bool Equals(::by_ref<const UnityEngine::Color> rhs) const { return Equals(*rhs); }
+#endif
+
         constexpr float& operator[](int i) {
-            return (&r)[i];
+            switch (i) {
+                case 0: return r;
+                case 1: return g;
+                case 2: return b;
+                case 3: return a;
+                default: throw std::out_of_range("Invalid Color index!");
+            }
+        }
+
+        constexpr const float& operator[](int i) const {
+            switch (i) {
+                case 0: return r;
+                case 1: return g;
+                case 2: return b;
+                case 3: return a;
+                default: throw std::out_of_range("Invalid Color index!");
+            }
         }
     };
 
@@ -380,19 +421,27 @@ namespace Sombrero {
     static_assert(sizeof(UnityEngine::Color) == sizeof(FastColor));
 #endif
 }
-DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastColor, "UnityEngine", "Color");
+DEFINE_IL2CPP_CLASS(Sombrero::FastColor, "UnityEngine", "Color");
+MARK_VAL_T(Sombrero::FastColor);
 #undef CONSTEXPR_GETTER
 
 
 
-namespace std {
+namespace Sombrero {
     template <> 
-    struct hash<Sombrero::FastColor>
+    struct ExactHash<FastColor>
     {
-        size_t operator()(const Sombrero::FastColor & color) const
+        size_t operator()(const Sombrero::FastColor & color) const noexcept
         {
-            std::hash<float> h;
+            auto h = Sombrero::detail::FloatKeyHash;
             return h(color.r) ^ h(color.g) ^ h(color.b) ^ h(color.a);
+        }
+    };
+
+    template <>
+    struct ExactEqual<FastColor> {
+        constexpr bool operator()(const Sombrero::FastColor& a, const Sombrero::FastColor& b) const noexcept {
+            return a.Equals(b);
         }
     };
 }

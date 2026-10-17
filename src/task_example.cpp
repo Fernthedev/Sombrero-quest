@@ -7,7 +7,7 @@ TaskHelper::detail::Generator<int> bar() {
 }
 
 TaskHelper::detail::Generator<int> awaitableTask() {
-  TaskHelper::Task<int>* randomTask = nullptr;
+  auto* randomTask = TaskHelper::StartTask<int>([] { return 42; });
   co_await randomTask;
   // task was done, no-op
   co_await randomTask;
@@ -27,6 +27,7 @@ TaskHelper::detail::Generator<int> awaitableTask() {
   co_return;
 }
 
-int main() {
-  TaskHelper::task_awaitable<int>(&awaitableTask, TaskHelper::CancellationToken());
+int task_example() {
+  TaskHelper::task_awaitable<int>(&awaitableTask, TaskHelper::CancellationToken::get_None());
+  return 0;
 }

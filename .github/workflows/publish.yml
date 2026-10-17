@@ -10,36 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         name: Checkout
         with:
           submodules: true
           lfs: true
 
-      - uses: seanmiddleditch/gha-setup-ninja@v3
-
-      - name: Create ndkpath.txt
-        run: |
-          echo "$ANDROID_NDK_LATEST_HOME" > ${GITHUB_WORKSPACE}/ndkpath.txt
-          cat ${GITHUB_WORKSPACE}/ndkpath.txt
-
       - name: Get Tag Version
         id: get_tag_version
         run: |
-          echo ${GITHUB_REF#refs/tags/}
-          echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-          echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
 
-      - name: QPM Rust Action
-        uses: Fernthedev/qpm-rust-action@main
+      - name: Setup QPM
+        uses: Fernthedev/qpm-action@v1
         with:
+          resolve_ndk: true
           #required
           workflow_token: ${{secrets.GITHUB_TOKEN}}
 
           restore: true # will run restore on download
           cache: true #will cache dependencies
 
-          publish: true
+          publish: 'late'
           publish_token: ${{secrets.QPM_TOKEN}}
 
           version: ${{ steps.get_tag_version.outputs.VERSION }}
@@ -48,5 +41,4 @@ jobs:
       - name: Build
         run: |
           cd ${GITHUB_WORKSPACE}
-          qpm-rust s build
-          qpm-rust restore
+          qpm s build

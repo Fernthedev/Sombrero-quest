@@ -4,8 +4,9 @@
 #include "Concepts.hpp"
 
 #include <utility>
+#include <stdexcept>
 
-#include "beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/config.hpp"
 #ifdef HAS_CODEGEN
 #include "UnityEngine/Vector2.hpp"
 #endif
@@ -39,6 +40,8 @@ namespace Sombrero {
 
     struct FastVector2 : public UnityEngine::Vector2 {
     public:
+        static constexpr float kEpsilon = 0.00001f;
+
         // Implicit convert of vector
         constexpr FastVector2(const Vector2& vector) : Vector2(vector.x, vector.y) {}
         constexpr FastVector2(float x = 0.0f, float y = 0.0f) : Vector2(x, y) {}
@@ -94,10 +97,13 @@ namespace Sombrero {
             return ::Sombrero::sqroot(dx * dx + dy * dy);
         }
 
-        static constexpr FastVector2 Normalize(FastVector2& vec) {
+        static constexpr FastVector2 Normalize(const FastVector2& vec) {
             float magnitude = vec.Magnitude();
-            if (magnitude == 0.0f) return {0.0f, 0.0f};
-            return vec / magnitude;
+            return magnitude > kEpsilon ? vec / magnitude : zero();
+        }
+
+        constexpr FastVector2 get_normalized() const {
+            return Normalize(*this);
         }
 
         constexpr void Normalize() {
@@ -106,12 +112,7 @@ namespace Sombrero {
 
         // In case codegen method takes over
         constexpr void NormalizeFast() {
-            float magnitude = Magnitude();
-            if (magnitude == 0.0f) {
-                x = 0.0f;
-                y = 0.0f;
-            }
-            *this /= magnitude;
+            *this = Normalize(*this);
         }
 
 #define operatorOverload(name, operatore) \
@@ -154,15 +155,43 @@ namespace Sombrero {
 
 
         constexpr bool operator ==(const UnityEngine::Vector2& lhs) const {
-            return lhs.x == x && lhs.y == y;
+            const float dx = x - lhs.x, dy = y - lhs.y;
+            return dx * dx + dy * dy < kEpsilon * kEpsilon;
         }
 
         constexpr bool operator !=(const UnityEngine::Vector2& lhs) const {
-            return lhs.x != x || lhs.y != y;
+            return !(*this == lhs);
         }
 
+        constexpr bool Equals(const UnityEngine::Vector2& rhs) const {
+            return x == rhs.x && y == rhs.y;
+        }
+
+#ifdef HAS_CODEGEN
+        // Keep generated overloads available without importing the by-value
+        // overload, which would compete with the native const-reference path.
+        bool Equals(::System::Object* rhs) const {
+            auto* object = reinterpret_cast<Il2CppObject*>(rhs);
+            return object && object->klass == ::i2c::class_of<UnityEngine::Vector2>()
+                && Equals(::i2c::from_object<UnityEngine::Vector2, true>(object));
+        }
+        constexpr bool Equals(::by_ref<const UnityEngine::Vector2> rhs) const { return Equals(*rhs); }
+#endif
+
         constexpr float& operator[](int i) {
-            return (&x)[i];
+            switch (i) {
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range("Invalid Vector2 index!");
+            }
+        }
+
+        constexpr const float& operator[](int i) const {
+            switch (i) {
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range("Invalid Vector2 index!");
+            }
         }
     };
 
@@ -187,17 +216,25 @@ namespace Sombrero {
     static_assert(sizeof(UnityEngine::Vector2) == sizeof(FastVector2));
 #endif
 }
-DEFINE_IL2CPP_ARG_TYPE(Sombrero::FastVector2, "UnityEngine", "Vector2");
+DEFINE_IL2CPP_CLASS(Sombrero::FastVector2, "UnityEngine", "Vector2");
+MARK_VAL_T(Sombrero::FastVector2);
 #undef CONSTEXPR_GETTER
 
-namespace std {
+namespace Sombrero {
     template <> 
-    struct hash<Sombrero::FastVector2>
+    struct ExactHash<FastVector2>
     {
-        size_t operator()(const Sombrero::FastVector2 & v) const
+        size_t operator()(const Sombrero::FastVector2 & v) const noexcept
         {
-            std::hash<float> h;
+            auto h = Sombrero::detail::FloatKeyHash;
             return h(v.x) ^ h(v.y);
+        }
+    };
+
+    template <>
+    struct ExactEqual<FastVector2> {
+        constexpr bool operator()(const Sombrero::FastVector2& a, const Sombrero::FastVector2& b) const noexcept {
+            return Sombrero::detail::FloatKeyEqual(a.x, b.x) && Sombrero::detail::FloatKeyEqual(a.y, b.y);
         }
     };
 }
