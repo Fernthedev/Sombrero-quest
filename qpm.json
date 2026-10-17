@@ -22,6 +22,20 @@
       "additionalData": {
         "private": true
       }
+    },
+    {
+      "id": "paper2_scotland2",
+      "versionRange": "^4.8.0",
+      "additionalData": {
+        "private": true
+      }
+    },
+    {
+      "id": "scotland2",
+      "versionRange": "^0.1.7",
+      "additionalData": {
+        "private": true
+      }
     }
   ],
   "workspace": {
